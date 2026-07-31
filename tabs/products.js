@@ -103,6 +103,7 @@ export default {
         repairlog_ids: [],
         picture_ids: [],
         memory: "",
+        public_info: "",
       };
       return id;
     },
@@ -162,7 +163,7 @@ export default {
         this.sortDir = this.sortDir === "asc" ? "desc" : "asc";
       } else {
         this.sortKey = key;
-        this.sortDir = "asc";
+        this.sortDir = "desc";
       }
     },
     startEdit(id) {
@@ -226,9 +227,9 @@ export default {
     <section id="products-tab">
       <h2>機器</h2>
       <p v-if="selectId">選択中の機器分類: {{ getEquipTitle(selectId) }} <input type="button" value="クリア（すべて表示）" @click="selectId = null;equipShow = false"></p>
-      <input type="button" value="機器分類を表示" v-if="!equipShow" @click="equipShow = true">
-      <input type="button" value="機器分類を非表示" v-if="equipShow" @click="equipShow = false">
-      <p v-if="equipShow">
+      <input type="button" class="guide-toggle" value="機器分類を表示" v-if="!equipShow" @click="equipShow = true">
+      <input type="button" class="guide-toggle" value="機器分類を非表示" v-if="equipShow" @click="equipShow = false">
+      <template v-if="equipShow">
         <table class="equip-table">
           <thead>
             <tr><th>大分類</th><th>中分類</th><th>小分類</th></tr>
@@ -271,7 +272,7 @@ export default {
             <p><input type="button" :value="'「' + getEquipTitle(smLevel2Id) + '」で入力'" @click="addProductForEquip(smLevel2Id)"></p>
           </template>
         </div>
-      </p>
+      </template>
 
       <p v-if="!equipShow" style="color:var(--muted);">※機器分類を表示すると、製品の種類で絞り込むことができます。</p>
 
@@ -357,7 +358,7 @@ export default {
           <ul>
             <li v-for="lid in data.products[editingId].repairlog_ids" :key="lid">
               <a href="#" @click.prevent="$emit('jump-repairlog', lid)">{{ repairlogSummary(lid) }}</a>
-              <button @click.stop="removeRepairlogEntry(lid)">削除</button>
+              <!-- <button @click.stop="removeRepairlogEntry(lid)">削除</button> -->
             </li>
           </ul>
           <p><span class="rowtitle">写真</span>　<button @click="addPictureFor(editingId)">＋新規追加</button></p>
@@ -371,6 +372,7 @@ export default {
             </li>
           </ul>
           <p><span class="rowtitle">思い出</span> <textarea class="memory" v-model="data.products[editingId].memory"></textarea></p>
+          <p><span class="rowtitle">公開用情報</span> <textarea class="memory" v-model="data.products[editingId].public_info"></textarea></p>
           <p><span class="rowtitle">使用終了年</span> <input type="number" v-model.number="data.products[editingId].enduseyear">年</p>
         </div>
       </template>

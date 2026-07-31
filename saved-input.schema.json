@@ -78,7 +78,8 @@
             "favorite",
             "repairlog_ids",
             "picture_ids",
-            "memory"
+            "memory",
+            "public_info"
           ],
           "additionalProperties": false,
           "properties": {
@@ -102,7 +103,8 @@
               "type": "array",
               "items": { "type": "string", "pattern": "^p[0-9]+$" }
             },
-            "memory": { "type": "string" }
+            "memory": { "type": "string" },
+            "public_info": { "type": "string" }
           }
         }
       },
@@ -141,6 +143,7 @@
             "day": { "type": ["number", "null"] },
             "equip_id": { "type": "string" },
             "about": { "type": "string" },
+            "public_info": { "type": "string" },
             "picture_ids": {
               "type": "array",
               "items": { "type": "string", "pattern": "^p[0-9]+$" }

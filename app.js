@@ -85,9 +85,9 @@ const app = createApp({
       tabs: [
         { id: "room", label: "部屋" },
         { id: "products", label: "機器" },
-        { id: "energy", label: "光熱" },
         { id: "repairlog", label: "修理履歴" },
         { id: "picture", label: "写真" },
+        { id: "energy", label: "光熱" },
         { id: "input", label: "診断項目" },
         { id: "setting", label: "設定" },
       ],

@@ -22,7 +22,7 @@ export default {
       </div>
       <h3>バージョン</h3>
       <div class="toolbar">
-        <p>バージョン: 1.0.0 2026/07/28</p>
+        <p>バージョン: 1.0.1 2026/07/31</p>
       </div>
     </section>
   `,

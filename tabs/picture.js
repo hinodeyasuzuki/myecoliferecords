@@ -12,6 +12,7 @@ export default {
   data() {
     return {
       editingId: null,
+      linkTab: "products",
     };
   },
   created() {
@@ -19,6 +20,26 @@ export default {
       this.editingId = this.highlightId;
       this.$emit("consumed-highlight");
     }
+  },
+  computed: {
+    productPictureIds() {
+      const ids = new Set();
+      for (const product of Object.values(this.data.products)) {
+        for (const pid of product.picture_ids) ids.add(pid);
+      }
+      return ids;
+    },
+    repairlogPictureIds() {
+      const ids = new Set();
+      for (const log of Object.values(this.data.repairlog)) {
+        for (const pid of log.picture_ids) ids.add(pid);
+      }
+      return ids;
+    },
+    filteredPictureEntries() {
+      const ids = this.linkTab === "repairlog" ? this.repairlogPictureIds : this.productPictureIds;
+      return Object.entries(this.data.picture).filter(([pid]) => ids.has(pid));
+    },
   },
   methods: {
     addPictureAndEdit() {
@@ -85,9 +106,13 @@ export default {
     <section id="picture-tab">
       <h2>写真</h2>
       <template v-if="editingId === null">
+        <nav class="tabs">
+          <button :class="{active: linkTab === 'products'}" @click="linkTab = 'products'">機器写真</button>
+          <button :class="{active: linkTab === 'repairlog'}" @click="linkTab = 'repairlog'">修理写真</button>
+        </nav>
         <div class="picture-grid">
           <div
-            v-for="(pic, id) in data.picture"
+            v-for="[id, pic] in filteredPictureEntries"
             :key="id"
             class="picture-tile"
             @click="startEdit(id)"
@@ -113,7 +138,7 @@ export default {
           <p v-if="data.picture[editingId].sourceUrl" style="color:var(--muted);">
             取込元: <a :href="data.picture[editingId].sourceUrl" target="_blank" rel="noopener">Google Photos</a>（リンクは時間が経つと無効になる場合があります）
           </p>
-          <p><span class="rowtitle">メモ</span> <textarea v-model="data.picture[editingId].memo"></textarea></p>
+          <p><span class="rowtitle">メモ</span> <textarea class="memory" v-model="data.picture[editingId].memo"></textarea></p>
           <p><span class="rowtitle">作成日時</span> <input type="text" v-model="data.picture[editingId].created_at"></p>
         </div>
       </template>

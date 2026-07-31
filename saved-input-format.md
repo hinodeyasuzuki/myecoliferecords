@@ -39,13 +39,14 @@ JSONエクスポート時は、これに加えて`pictureBlobs`(IndexedDBの内�
   - 値: `{ name, area, connected_room_ids }`
 - products
   - キー: `e***`
-  - 値: `{ name, equip_id, purchaseyear, purchasemonth, method, manufactureyear, room_id, watt, usagetime, frequency, enduseyear, favorite, repairlog_ids, picture_ids, memory }`
+  - 値: `{ name, equip_id, purchaseyear, purchasemonth, method, manufactureyear, room_id, watt, usagetime, frequency, enduseyear, favorite, repairlog_ids, picture_ids, memory, public_info }`
+  - 本来は p***であるが、pictureで使われているので、equipmentのeをキーに使用
 - energy / energycost
   - キー: `yyyymm` (例: `202612`)
   - 値: コードをキーにした数値マップ
 - repairlog
   - キー: `l***`
-  - 値: `{ year, month, day, equip_id, about, picture_ids, created_at }`
+  - 値: `{ year, month, day, equip_id, about, public_info, picture_ids, created_at }`
 - picture
   - キー: `p***`
   - 値: `{ memo, created_at, sourceUrl }`（画像データURL本体はここには含まれず、IndexedDBに`p***`をキーとして保存される。`sourceUrl` はGoogle Photos等から取り込んだ場合の参照元URLで、未入力時は空文字列・期限切れの可能性あり。詳細は `docs/superpowers/specs/2026-07-27-photo-capture-design.md` および下記「写真データの保存先」参照）

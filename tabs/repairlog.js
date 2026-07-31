@@ -59,7 +59,7 @@ export default {
         this.sortDir = this.sortDir === "asc" ? "desc" : "asc";
       } else {
         this.sortKey = key;
-        this.sortDir = "asc";
+        this.sortDir = "desc";
       }
     },
     startEdit(id) {
@@ -133,7 +133,8 @@ export default {
               <option v-for="(product, pid) in data.products" :key="pid" :value="pid">{{ pid }} ({{ product.name }})</option>
             </select>
           </p>
-          <p><span class="rowtitle">概要</span> <textarea class="memory" v-model="data.repairlog[editingId].about"></textarea></p>
+          <p><span class="rowtitle">思い出</span> <textarea class="memory" v-model="data.repairlog[editingId].about"></textarea></p>
+          <p><span class="rowtitle">公開用情報</span> <textarea class="memory" v-model="data.repairlog[editingId].public_info"></textarea></p>
           <p><span class="rowtitle">写真</span>　<button @click="addPictureFor(editingId)">＋新規追加</button></p>
           <ul>
             <li v-for="pid in data.repairlog[editingId].picture_ids" :key="pid">
@@ -141,7 +142,7 @@ export default {
                 <img v-if="pictureSrc(pid)" :src="pictureSrc(pid)" class="picture-thumb-sm">
                 {{ pictureSummaryFor(pid) }}
               </a>
-              <button @click.stop="removePictureEntry(pid)">削除</button>
+              <!-- <button @click.stop="removePictureEntry(pid)">削除</button> -->
             </li>
           </ul>
           <!-- <p><span class="rowtitle">作成日時</span> <input type="text" v-model="data.repairlog[editingId].created_at"></p> -->

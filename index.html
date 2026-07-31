@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <title>Myエコライフ記録 - My EcoLife Records</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="icon" href="./favicon.ico">
 <style>
   :root {
     color-scheme: light dark;
@@ -44,11 +45,20 @@
   }
   button { cursor: pointer; }
   .toolbar { display: flex; gap: 16px; align-items: center; margin-bottom: 16px; }
+  input[type="button"].guide-toggle {
+    background: transparent;
+    color: var(--accent);
+    border: none;
+    text-decoration: underline;
+    padding: 4px 2px;
+    font-size: 0.9em;
+  }
   .highlighted { outline: 2px solid var(--accent); }
   .rowtitle {
     display: inline-block;
     width: 100px;
     font-weight: bold;
+    vertical-align: top;
   }
   input[type="button"].highlighted { background: var(--accent) !important; color: #fff; border-color: var(--accent); }
   input[type="number"] { text-align: right;width:6em; }
@@ -62,6 +72,12 @@
   }
   .equip-table-sm{
     display: none;
+  }
+  textarea.memory {
+    display: inline-block;
+    width: calc(100% - 8em);
+    font-size: 1.2em;
+    height: 4em;
   }
 
   #energy-table .item {
@@ -93,12 +109,6 @@
     background: var(--card);
     border: 1px solid var(--border);
     border-radius: 6px;
-  }
-  #products-tab .memory, #repairlog-tab .memory {
-    display: inline-block;
-    width: calc(100% - 8em);
-    font-size: 1.2em;
-    height: 4em;
   }
   #picture-tab .picture-card {
     border: 1px solid var(--border);
