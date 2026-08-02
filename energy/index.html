@@ -1,0 +1,767 @@
+<!doctype html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<title>光熱グラフ</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  :root {
+    color-scheme: light dark;
+    --bg: #ffffff;
+    --fg: #1a1d21;
+    --muted: #5b6270;
+    --card: #f6f7f9;
+    --border: #e2e5ea;
+    --accent: #1a6b4a;
+  }
+  body {
+    margin: 0;
+    padding: 24px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    background: var(--bg);
+    color: var(--fg);
+  }
+  main {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  .panel {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .controls {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.95em;
+  }
+  select, button {
+    padding: 6px 10px;
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    font-size: 1em;
+  }
+  button {
+    background: var(--accent);
+    color: white;
+    border: none;
+    cursor: pointer;
+  }
+  svg {
+    width: 100%;
+    max-width: 700px;
+    height: auto;
+    display: block;
+  }
+  .legend {
+    display: grid;
+    gap: 6px;
+    padding-left: 0;
+    margin: 10px 0 0;
+    list-style: none;
+  }
+  .legend span {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 6px;
+    border-radius: 3px;
+  }
+  .chart-layout {
+    display: grid;
+    grid-template-columns: 1fr 220px;
+    gap: 16px;
+    align-items: start;
+  }
+  .pie-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92em;
+  }
+  .pie-table th, .pie-table td {
+    padding: 6px 8px;
+    border-bottom: 1px solid var(--border);
+    text-align: left;
+  }
+  .pie-table th {
+    background: var(--card);
+  }
+  .pie-table .swatch {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    margin-right: 6px;
+  }
+  @media (max-width: 700px) {
+    .chart-layout {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>光熱グラフ</h1>
+  <p>このページでは、保存済みの光熱データをもとにしたグラフを確認できます。</p>
+  <div class="panel">
+    <div class="controls">
+      <label>
+        表示
+        <select id="viewSelect">
+          <option value="trend">平均比較</option>
+          <option value="yearly">前年比較</option>
+          <option value="longterm">経年変化</option>
+          <option value="stacked">今月の内訳</option>
+        </select>
+      </label>
+      <label>
+        種別
+        <select id="kindSelect">
+          <option value="consumption">消費量</option>
+          <option value="cost">費用</option>
+          <option value="co2">CO2排出量</option>
+        </select>
+      </label>
+      <label id="yearControl" style="display:none;">
+        年
+        <select id="yearSelect"></select>
+      </label>
+      <label id="monthControl" style="display:none;">
+        月
+        <select id="monthSelect"></select>
+      </label>
+      <label id="longtermMonthControl" style="display:none;">
+        月
+        <select id="longtermMonthSelect"></select>
+      </label>
+      <label id="itemControl" style="display:none;">
+        項目
+        <select id="itemSelect"></select>
+      </label>
+      <!-- <button type="button" onclick="location.reload()">更新</button> -->
+    </div>
+    <div id="chartArea"></div>
+  </div>
+  <button type="button" onclick="window.location.href = '../index.html'">Myエコライフ記録に戻る</button>
+</main>
+<script src="./co2.js"></script>
+<script type="module">
+  const STORAGE_KEY = "homeenergycodes.savedInput";
+  const API_BASE = "https://hinodeyasuzuki.github.io/homeenergycodes-public/api/v1";
+  const fallbackPalette = ["#1a6b4a", "#3b82f6", "#f59e0b", "#ef4444", "#8b5cf6", "#14b8a6", "#e11d48", "#6366f1"];
+  const state = {
+    view: "trend",
+    kind: "co2",
+    item: null,
+    year: null,
+    month: null,
+  };
+
+  const viewSelect = document.getElementById("viewSelect");
+  const kindSelect = document.getElementById("kindSelect");
+  const yearControl = document.getElementById("yearControl");
+  const yearSelect = document.getElementById("yearSelect");
+  const monthControl = document.getElementById("monthControl");
+  const monthSelect = document.getElementById("monthSelect");
+  const longtermMonthControl = document.getElementById("longtermMonthControl");
+  const longtermMonthSelect = document.getElementById("longtermMonthSelect");
+  const itemControl = document.getElementById("itemControl");
+  const itemSelect = document.getElementById("itemSelect");
+  const chartArea = document.getElementById("chartArea");
+
+  function syncKindOptions() {
+    if (!kindSelect) return;
+    const consumptionOption = kindSelect.querySelector('option[value="consumption"]');
+    if (state.view === "stacked") {
+      if (state.kind === "consumption" || state.kind === "cost") {
+        state.kind = "co2";
+      }
+      if (consumptionOption) {
+        consumptionOption.remove();
+      }
+    } else {
+      if (!consumptionOption) {
+        const option = document.createElement("option");
+        option.value = "consumption";
+        option.textContent = "消費量";
+        kindSelect.insertBefore(option, kindSelect.querySelector('option[value="cost"]'));
+      }
+    }
+
+    if (state.kind && kindSelect.querySelector(`option[value="${state.kind}"]`)) {
+      kindSelect.value = state.kind;
+    }
+  }
+
+  let masterEnergy = [];
+  let masterEnergyCost = [];
+
+  function getRowColor(code, fallbackIndex = 0) {
+    const color = window.co2?.ccolor?.[code];
+    if (typeof color === "string" && color) {
+      return color;
+    }
+    return fallbackPalette[fallbackIndex % fallbackPalette.length];
+  }
+
+  function getUnitLabel(code) {
+    if (state.kind === "consumption") {
+      const unit = window.co2?.cunit?.[code];
+      return typeof unit === "string" && unit ? unit : "";
+    }
+    if (state.kind === "cost") {
+      return "円";
+    }
+    return "kg";
+  }
+
+  function loadData() {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+
+  async function loadMaster() {
+    try {
+      const [energy, energycost] = await Promise.all([
+        fetch(`${API_BASE}/energy.json`).then((res) => res.json()),
+        fetch(`${API_BASE}/energycost.json`).then((res) => res.json()),
+      ]);
+      masterEnergy = Array.isArray(energy) ? energy : [];
+      masterEnergyCost = Array.isArray(energycost) ? energycost : [];
+    } catch (err) {
+      console.error(err);
+      masterEnergy = [];
+      masterEnergyCost = [];
+    }
+  }
+
+  function buildRows() {
+    const energyRows = masterEnergy;
+    const costRows = masterEnergyCost;
+    return energyRows.map((row) => {
+      const expectedCostCode = row.code + "p";
+      const hasCost = costRows.some((c) => c.code === expectedCostCode);
+      return {
+        code: row.code,
+        name: row.name,
+        unit: row.unit,
+        costCode: hasCost ? expectedCostCode : null,
+      };
+    });
+  }
+
+  function getMonthKey(year, month) {
+    return `${year}${String(month).padStart(2, "0")}`;
+  }
+
+  function getActualValue(ym, row) {
+    const data = loadData();
+    if (!data) return 0;
+    if (state.kind === "cost") {
+      if (!row.costCode) return 0;
+      const bucket = data.energycost?.[ym] || {};
+      const value = Number(bucket[row.costCode] || 0);
+      return Number.isFinite(value) ? value : 0;
+    }
+    if (state.kind === "co2") {
+      const bucket = data.energy?.[ym] || {};
+      const consumption = Number(bucket[row.code] || 0);
+      const co2Unit = window.co2?.co2unit?.[row.code] ?? 0;
+      return Number.isFinite(consumption) && Number.isFinite(co2Unit) ? consumption * co2Unit : 0;
+    }
+    const bucket = data.energy?.[ym] || {};
+    const value = Number(bucket[row.code] || 0);
+    return Number.isFinite(value) ? value : 0;
+  }
+
+  function getMetricValue(ym, row) {
+    return getActualValue(ym, row);
+  }
+
+  function getBenchmarkValue(year, month, row) {
+    const data = loadData();
+    if (!data || !window.co2?.get_average) return 0;
+    const person = Number(data.input?.i001 ?? window.co2.person ?? 0);
+    const prefcode = Number(data.input?.i021 ?? window.co2.prefcode ?? 0);
+    const average = window.co2.get_average(month, person, prefcode) || {};
+    const benchmarkConsumption = Number(average[row.code] || 0);
+    if (state.kind === "cost") {
+      if (!row.costCode) return 0;
+      const ym = getMonthKey(year, month);
+      const actualConsumption = getActualValue(ym, { ...row, code: row.code });
+      const actualCost = getActualValue(ym, row);
+      if (actualConsumption > 0 && actualCost > 0) {
+        return benchmarkConsumption * (actualCost / actualConsumption);
+      }
+      return 0;
+    }
+    return benchmarkConsumption;
+  }
+
+  function getAvailableYears(data) {
+    const source = state.kind === "cost" ? data?.energycost : data?.energy;
+    if (!source || typeof source !== "object") return [];
+    const years = Object.keys(source)
+      .map((key) => {
+        const match = String(key).match(/^(\d{4})/);
+        return match ? Number(match[1]) : null;
+      })
+      .filter((value) => Number.isInteger(value))
+      .filter((value, index, arr) => arr.indexOf(value) === index);
+    return years.sort((a, b) => b - a);
+  }
+
+  function getActiveYear(data) {
+    const availableYears = getAvailableYears(data);
+    if (!availableYears.length) {
+      const fallbackYear = new Date().getFullYear();
+      if (!state.year || Number.isNaN(Number(state.year))) {
+        state.year = fallbackYear;
+      }
+      return Number(state.year || fallbackYear);
+    }
+    const selectedYear = Number(state.year);
+    if (Number.isInteger(selectedYear) && availableYears.includes(selectedYear)) {
+      return selectedYear;
+    }
+    state.year = availableYears[0];
+    return availableYears[0];
+  }
+
+  function getActiveMonth() {
+    const currentMonth = new Date().getMonth() + 1;
+    const selectedMonth = Number(state.month);
+    if (Number.isInteger(selectedMonth) && selectedMonth >= 1 && selectedMonth <= 12) {
+      return selectedMonth;
+    }
+    state.month = currentMonth;
+    return currentMonth;
+  }
+
+  function getActiveLongtermMonth() {
+    const selectedMonth = Number(state.longtermMonth);
+    if (Number.isInteger(selectedMonth) && selectedMonth >= 1 && selectedMonth <= 12) {
+      return selectedMonth;
+    }
+    state.longtermMonth = 0;
+    return 0;
+  }
+
+  async function render() {
+    await loadMaster();
+    const rows = buildRows();
+    if (!rows.length) {
+      chartArea.innerHTML = "<p>光熱データがまだありません。</p>";
+      return;
+    }
+
+    if (!state.item || !rows.some((row) => row.code === state.item)) {
+      state.item = rows[0].code;
+    }
+
+    itemSelect.innerHTML = rows.map((row) => `<option value="${row.code}" ${row.code === state.item ? "selected" : ""}>${row.name}</option>`).join("");
+
+    const selected = rows.find((row) => row.code === state.item) || rows[0];
+    const data = loadData();
+    if (!data) {
+      chartArea.innerHTML = "<p>保存済みデータが見つかりません。</p>";
+      return;
+    }
+
+    const year = getActiveYear(data);
+    const month = getActiveMonth();
+    const longtermMonth = getActiveLongtermMonth();
+    const availableYears = getAvailableYears(data);
+    if (yearSelect) {
+      yearSelect.innerHTML = availableYears.length
+        ? availableYears.map((yearValue) => `<option value="${yearValue}" ${yearValue === year ? "selected" : ""}>${yearValue}年</option>`).join("")
+        : `<option value="${year}">${year}年</option>`;
+      yearSelect.value = String(year);
+    }
+    if (monthSelect) {
+      monthSelect.innerHTML = Array.from({ length: 12 }, (_, index) => {
+        const monthValue = index + 1;
+        return `<option value="${monthValue}" ${monthValue === month ? "selected" : ""}>${monthValue}月</option>`;
+      }).join("");
+      monthSelect.value = String(month);
+    }
+    if (longtermMonthSelect) {
+      longtermMonthSelect.innerHTML = [
+        '<option value="0">全て</option>',
+        ...Array.from({ length: 12 }, (_, index) => {
+          const monthValue = index + 1;
+          return `<option value="${monthValue}" ${monthValue === longtermMonth ? "selected" : ""}>${monthValue}月</option>`;
+        }),
+      ].join("");
+      longtermMonthSelect.value = String(longtermMonth);
+    }
+
+    if (state.view === "trend") {
+      const months = Array.from({ length: 12 }, (_, index) => index + 1);
+      const unitLabel = getUnitLabel(selected.code);
+      const width = 700;
+      const height = 280;
+      const padding = 36;
+
+      if (state.kind === "co2") {
+        const stackedSeries = months.map((month) => {
+          const ym = getMonthKey(year, month);
+          const entries = rows
+            .map((row) => ({
+              row,
+              value: getActualValue(ym, row),
+              averageValue: getBenchmarkValue(year, month, row),
+            }))
+            .filter((item) => item.value > 0 || item.averageValue > 0)
+            .map((item, index) => ({ ...item, color: getRowColor(item.row.code, index) }));
+          const total = entries.reduce((sum, entry) => sum + entry.value, 0);
+          const averageTotal = entries.reduce((sum, entry) => sum + entry.averageValue, 0);
+          return { month, ym, entries, total, averageTotal };
+        });
+        const plotHeight = height - padding * 2;
+        const maxValue = Math.max(1, ...stackedSeries.map((item) => Math.max(item.total, item.averageTotal, 1)));
+        const tickCount = 5;
+        const tickLabels = Array.from({ length: tickCount + 1 }, (_, index) => {
+          const value = Math.round((maxValue / tickCount) * index);
+          const y = height - padding - ((index * (height - padding * 2)) / tickCount);
+          return { value, y };
+        });
+        const barWidth = Math.max(20, (width - padding * 2) / Math.max(stackedSeries.length, 1) * 0.6);
+        const gap = (width - padding * 2) / Math.max(stackedSeries.length, 1);
+        const plotPoints = stackedSeries.map((item, index) => {
+          const x = padding + index * gap + (gap - barWidth) / 2 + barWidth / 2;
+          const avgY = height - padding - (item.averageTotal / maxValue) * plotHeight;
+          return { x, avgY };
+        });
+        const averagePath = plotPoints.map((point, index) => `${index === 0 ? "M" : "L"}${point.x.toFixed(1)},${point.avgY.toFixed(1)}`).join(" ");
+        const legendItems = rows.filter((row) => stackedSeries.some((item) => item.entries.some((entry) => entry.row.code === row.code)));
+
+        chartArea.innerHTML = `
+          <p style="margin:0 0 8px 0; color:var(--muted)">単位：${unitLabel || "-"}</p>
+          <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="月別推移（CO2積み上げ）">
+            <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="#cbd5e1" stroke-width="1"></line>
+            <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="#cbd5e1" stroke-width="1"></line>
+            ${tickLabels.map((tick) => `
+              <line x1="${padding}" y1="${tick.y}" x2="${width - padding}" y2="${tick.y}" stroke="#eef2f7" stroke-width="1"></line>
+              <text x="${padding - 8}" y="${tick.y + 4}" text-anchor="end" font-size="12">${tick.value}</text>
+            `).join("")}
+            <path d="${averagePath}" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6 4"></path>
+            ${stackedSeries.map((item, index) => {
+              const x = padding + index * gap + (gap - barWidth) / 2;
+              let running = 0;
+              return item.entries.map((entry) => {
+                const value = entry.value;
+                const rectHeight = (value / maxValue) * plotHeight;
+                const rectY = height - padding - ((running + value) / maxValue) * plotHeight;
+                running += value;
+                return `<rect x="${x}" y="${rectY}" width="${barWidth}" height="${rectHeight}" fill="${entry.color}"></rect>`;
+              }).join("") + `<text x="${x + barWidth / 2}" y="${height - 10}" text-anchor="middle" font-size="12">${item.month}月</text>`;
+            }).join("")}
+          </svg>
+          <div style="display:flex; flex-wrap:wrap; gap:10px 14px; margin-top:8px; font-size:0.95em;">
+            ${legendItems.map((row) => `<span style="display:inline-flex; align-items:center; gap:6px;"><span style="display:inline-block; width:12px; height:12px; border-radius:3px; background:${getRowColor(row.code, 0)}"></span>${row.name}</span>`).join("")}
+            <span style="display:inline-flex; align-items:center; gap:6px;"><span style="display:inline-block; width:16px; height:2px; background:#f59e0b;"></span>平均</span>
+          </div>
+          <p>CO2排出量の平均比較（内訳）</p>
+        `;
+        return;
+      }
+
+      const series = months.map((month) => {
+        const ym = getMonthKey(year, month);
+        return {
+          month,
+          ym,
+          actual: getActualValue(ym, selected),
+          average: getBenchmarkValue(year, month, selected),
+        };
+      });
+
+      const maxValue = Math.max(...series.map((item) => Math.max(item.actual, item.average, 1)));
+      const tickCount = 5;
+      const points = series.map((item, index) => {
+        const x = padding + (index * (width - padding * 2)) / Math.max(series.length - 1, 1);
+        const y = height - padding - (Math.max(item.actual, 0) / maxValue) * (height - padding * 2);
+        const avgY = height - padding - (Math.max(item.average, 0) / maxValue) * (height - padding * 2);
+        return { ...item, x, y, avgY };
+      });
+      const actualPath = points.map((point, index) => `${index === 0 ? "M" : "L"}${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ");
+      const averagePath = points.map((point, index) => `${index === 0 ? "M" : "L"}${point.x.toFixed(1)},${point.avgY.toFixed(1)}`).join(" ");
+      const tickLabels = Array.from({ length: tickCount + 1 }, (_, index) => {
+        const value = Math.round((maxValue / tickCount) * index);
+        const y = height - padding - ((index * (height - padding * 2)) / tickCount);
+        return { value, y };
+      });
+      chartArea.innerHTML = `
+        <p style="margin:0 0 8px 0; color:var(--muted)">単位：${unitLabel || "-"}</p>
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="月別推移">
+          <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="#cbd5e1" stroke-width="1"></line>
+          <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="#cbd5e1" stroke-width="1"></line>
+          ${tickLabels.map((tick) => `
+            <line x1="${padding}" y1="${tick.y}" x2="${width - padding}" y2="${tick.y}" stroke="#eef2f7" stroke-width="1"></line>
+            <text x="${padding - 8}" y="${tick.y + 4}" text-anchor="end" font-size="12">${tick.value}</text>
+          `).join("")}
+          <path d="${averagePath}" fill="none" stroke="#f59e0b" stroke-width="2" stroke-dasharray="6 4"></path>
+          <path d="${actualPath}" fill="none" stroke="${getRowColor(selected.code)}" stroke-width="3"></path>
+          ${points.map((point) => `<circle cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="4" fill="${getRowColor(selected.code)}"></circle>`).join("")}
+          ${points.map((point) => `<text x="${point.x.toFixed(1)}" y="${height - 10}" text-anchor="middle" font-size="12">${point.month}月</text>`).join("")}
+        </svg>
+        <p>${selected.name}の${year}年1月〜12月の平均比較</p>
+        <p style="color:var(--muted)">黄点線: 平均 / 実線: 実績</p>
+      `;
+      return;
+    }
+
+    if (state.view === "yearly") {
+      const months = Array.from({ length: 12 }, (_, index) => index + 1);
+      const unitLabel = getUnitLabel(selected.code);
+      const width = 700;
+      const height = 280;
+      const padding = 36;
+      const comparisonYear = availableYears.includes(year - 1) ? year - 1 : null;
+      const series = months.map((month) => {
+        const ymCurrent = getMonthKey(year, month);
+        const ymPrevious = comparisonYear !== null ? getMonthKey(comparisonYear, month) : null;
+        return {
+          month,
+          current: getActualValue(ymCurrent, selected),
+          previous: ymPrevious !== null ? getActualValue(ymPrevious, selected) : null,
+        };
+      });
+      const maxValue = Math.max(1, ...series.flatMap((item) => [Math.max(item.current, 0), item.previous !== null ? Math.max(item.previous, 0) : 0]));
+      const tickCount = 5;
+      const points = series.map((item, index) => {
+        const x = padding + (index * (width - padding * 2)) / Math.max(series.length - 1, 1);
+        const currentY = height - padding - (Math.max(item.current, 0) / maxValue) * (height - padding * 2);
+        const previousY = item.previous !== null
+          ? height - padding - (Math.max(item.previous, 0) / maxValue) * (height - padding * 2)
+          : null;
+        return { ...item, x, currentY, previousY };
+      });
+      const currentPath = points.map((point, index) => `${index === 0 ? "M" : "L"}${point.x.toFixed(1)},${point.currentY.toFixed(1)}`).join(" ");
+      const previousPath = points.map((point, index) => `${index === 0 ? "M" : "L"}${point.x.toFixed(1)},${point.previousY !== null ? point.previousY.toFixed(1) : point.currentY.toFixed(1)}`).join(" ");
+      const tickLabels = Array.from({ length: tickCount + 1 }, (_, index) => {
+        const value = Math.round((maxValue / tickCount) * index);
+        const y = height - padding - ((index * (height - padding * 2)) / tickCount);
+        return { value, y };
+      });
+      chartArea.innerHTML = `
+        <p style="margin:0 0 8px 0; color:var(--muted)">単位：${unitLabel || "-"}</p>
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="前年比較">
+          <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="#cbd5e1" stroke-width="1"></line>
+          <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="#cbd5e1" stroke-width="1"></line>
+          ${tickLabels.map((tick) => `
+            <line x1="${padding}" y1="${tick.y}" x2="${width - padding}" y2="${tick.y}" stroke="#eef2f7" stroke-width="1"></line>
+            <text x="${padding - 8}" y="${tick.y + 4}" text-anchor="end" font-size="12">${tick.value}</text>
+          `).join("")}
+          <path d="${previousPath}" fill="none" stroke="#94a3b8" stroke-width="2" stroke-dasharray="6 4"></path>
+          <path d="${currentPath}" fill="none" stroke="${getRowColor(selected.code)}" stroke-width="3"></path>
+          ${points.map((point) => `<circle cx="${point.x.toFixed(1)}" cy="${point.currentY.toFixed(1)}" r="4" fill="${getRowColor(selected.code)}"></circle>`).join("")}
+          ${points.map((point) => point.previousY !== null ? `<circle cx="${point.x.toFixed(1)}" cy="${point.previousY.toFixed(1)}" r="3" fill="#94a3b8"></circle>` : "").join("")}
+          ${points.map((point) => `<text x="${point.x.toFixed(1)}" y="${height - 10}" text-anchor="middle" font-size="12">${point.month}月</text>`).join("")}
+        </svg>
+        <p>${selected.name}の${year}年と${comparisonYear !== null ? `${comparisonYear}年` : "前年"}の比較</p>
+        <p style="color:var(--muted)">灰線: 前年 / 緑線: 選択年</p>
+      `;
+      return;
+    }
+
+    if (state.view === "longterm") {
+      const unitLabel = getUnitLabel(selected.code);
+      const width = 700;
+      const height = 280;
+      const padding = 36;
+      const sortedYears = [...availableYears].sort((a, b) => a - b);
+      const startYear = sortedYears[0] ?? year;
+      const endYear = sortedYears[sortedYears.length - 1] ?? year;
+      const selectedMonth = longtermMonth === 0 ? null : longtermMonth;
+      const series = [];
+      for (let currentYear = startYear; currentYear <= endYear; currentYear += 1) {
+        const monthsToInclude = selectedMonth === null ? Array.from({ length: 12 }, (_, index) => index + 1) : [selectedMonth];
+        for (const currentMonth of monthsToInclude) {
+          const ym = getMonthKey(currentYear, currentMonth);
+          series.push({
+            year: currentYear,
+            month: currentMonth,
+            ym,
+            value: getActualValue(ym, selected),
+          });
+        }
+      }
+      const maxValue = Math.max(1, ...series.map((item) => Math.max(item.value, 0)));
+      const tickCount = 5;
+      const points = series.map((item, index) => {
+        const x = padding + (index * (width - padding * 2)) / Math.max(series.length - 1, 1);
+        const y = height - padding - (Math.max(item.value, 0) / maxValue) * (height - padding * 2);
+        return { ...item, x, y };
+      });
+      const path = points.map((point, index) => `${index === 0 ? "M" : "L"}${point.x.toFixed(1)},${point.y.toFixed(1)}`).join(" ");
+      const tickLabels = Array.from({ length: tickCount + 1 }, (_, index) => {
+        const value = Math.round((maxValue / tickCount) * index);
+        const y = height - padding - ((index * (height - padding * 2)) / tickCount);
+        return { value, y };
+      });
+      const totalYears = endYear - startYear + 1;
+      const showLabel = (index, currentMonth, currentYear) => {
+        if (selectedMonth !== null) {
+          return true;
+        }
+        if (currentMonth === 1) {
+          return true;
+        }
+        if (totalYears <= 1) return true;
+        if (totalYears <= 3) return index % 3 === 0;
+        if (totalYears <= 6) return index % 6 === 0;
+        return false;
+      };
+      chartArea.innerHTML = `
+        <p style="margin:0 0 8px 0; color:var(--muted)">単位：${unitLabel || "-"}</p>
+        <svg viewBox="0 0 ${width} ${height}" role="img" aria-label="経年変化">
+          <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="#cbd5e1" stroke-width="1"></line>
+          <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="#cbd5e1" stroke-width="1"></line>
+          ${tickLabels.map((tick) => `
+            <line x1="${padding}" y1="${tick.y}" x2="${width - padding}" y2="${tick.y}" stroke="#eef2f7" stroke-width="1"></line>
+            <text x="${padding - 8}" y="${tick.y + 4}" text-anchor="end" font-size="12">${tick.value}</text>
+          `).join("")}
+          <path d="${path}" fill="none" stroke="${getRowColor(selected.code)}" stroke-width="3"></path>
+          ${points.map((point, index) => {
+            const label = showLabel(index, point.month, point.year)
+              ? (selectedMonth !== null ? `${point.year}年${point.month}月` : (point.month === 1 ? `${point.year}年${point.month}月` : `${point.month}月`))
+              : "";
+            return label
+              ? `<text x="${point.x.toFixed(1)}" y="${height - 10}" text-anchor="middle" font-size="12">${label}</text>`
+              : "";
+          }).join("")}
+          ${points.map((point) => `<circle cx="${point.x.toFixed(1)}" cy="${point.y.toFixed(1)}" r="4" fill="${getRowColor(selected.code)}"></circle>`).join("")}
+        </svg>
+        <p>${selected.name}の${startYear}年〜${endYear}年の経年変化</p>
+        <p style="color:var(--muted)">${selectedMonth === null ? "全ての月" : `${selectedMonth}月`}を表示しています</p>
+      `;
+      return;
+    }
+
+    const targetYm = getMonthKey(year, month);
+    const stacked = rows
+      .map((row) => ({ row, value: getMetricValue(targetYm, row) }))
+      .filter((item) => item.value > 0)
+      .map((item, index) => ({ ...item, color: getRowColor(item.row.code, index) }))
+      .sort((a, b) => b.value - a.value);
+
+    const total = stacked.reduce((sum, item) => sum + item.value, 0) || 1;
+    const unitLabel = state.kind === "co2" ? "kg" : "円";
+    const pieSlices = stacked.map((item, index) => {
+      const start = index === 0 ? 0 : stacked.slice(0, index).reduce((sum, part) => sum + (part.value / total) * 360, 0);
+      const end = start + (item.value / total) * 360;
+      const isFullCircle = stacked.length === 1 && item.value > 0;
+      return { ...item, start, end, isFullCircle };
+    });
+    const piePath = (start, end) => {
+      const startAngle = (start - 90) * (Math.PI / 180);
+      const endAngle = (end - 90) * (Math.PI / 180);
+      const largeArc = end - start > 180 ? 1 : 0;
+      const x1 = 150 + 90 * Math.cos(startAngle);
+      const y1 = 150 + 90 * Math.sin(startAngle);
+      const x2 = 150 + 90 * Math.cos(endAngle);
+      const y2 = 150 + 90 * Math.sin(endAngle);
+      return `M 150 150 L ${x1} ${y1} A 90 90 0 ${largeArc} 1 ${x2} ${y2} Z`;
+    };
+
+    chartArea.innerHTML = `
+      <div class="chart-layout">
+        <svg viewBox="0 0 300 300" role="img" aria-label="今月の内訳">
+          <circle cx="150" cy="150" r="90" fill="#f8fafc" stroke="#e2e5ea"></circle>
+          ${pieSlices.map((slice) => slice.isFullCircle
+            ? `<circle cx="150" cy="150" r="90" fill="${slice.color}"></circle>`
+            : `<path d="${piePath(slice.start, slice.end)}" fill="${slice.color}"></path>`).join("")}
+        </svg>
+        <table class="pie-table">
+          <thead>
+            <tr><th>項目</th><th>数値</th><th>割合</th></tr>
+          </thead>
+          <tbody>
+            ${stacked.map((item) => `
+              <tr>
+                <td><span class="swatch" style="background:${item.color}"></span>${item.row.name}</td>
+                <td>${item.value.toLocaleString("ja-JP")} ${unitLabel}</td>
+                <td>${Math.round((item.value / total) * 100)}%</td>
+              </tr>
+            `).join("")}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  viewSelect.addEventListener("change", (event) => {
+    state.view = event.target.value;
+    syncKindOptions();
+    if (yearControl) {
+      yearControl.style.display = (state.view === "trend" || state.view === "yearly") ? "flex" : "none";
+    }
+    if (monthControl) {
+      monthControl.style.display = state.view === "stacked" ? "flex" : "none";
+    }
+    if (longtermMonthControl) {
+      longtermMonthControl.style.display = state.view === "longterm" ? "flex" : "none";
+    }
+    if (itemControl) {
+      itemControl.style.display = (state.view === "trend" || state.view === "yearly" || state.view === "longterm") && state.kind !== "co2" ? "flex" : "none";
+    }
+    render();
+  });
+  kindSelect.addEventListener("change", (event) => {
+    state.kind = event.target.value;
+    if (itemControl) {
+      itemControl.style.display = (state.view === "trend" || state.view === "yearly" || state.view === "longterm") && state.kind !== "co2" ? "flex" : "none";
+    }
+    render();
+  });
+  yearSelect.addEventListener("change", (event) => {
+    state.year = Number(event.target.value);
+    render();
+  });
+  monthSelect.addEventListener("change", (event) => {
+    state.month = Number(event.target.value);
+    render();
+  });
+  longtermMonthSelect.addEventListener("change", (event) => {
+    state.longtermMonth = Number(event.target.value);
+    render();
+  });
+  itemSelect.addEventListener("change", (event) => {
+    state.item = event.target.value;
+    render();
+  });
+
+  syncKindOptions();
+  if (yearControl) {
+    yearControl.style.display = (state.view === "trend" || state.view === "yearly") ? "flex" : "none";
+  }
+  if (monthControl) {
+    monthControl.style.display = state.view === "stacked" ? "flex" : "none";
+  }
+  if (longtermMonthControl) {
+    longtermMonthControl.style.display = state.view === "longterm" ? "flex" : "none";
+  }
+  if (itemControl) {
+    itemControl.style.display = (state.view === "trend" || state.view === "yearly" || state.view === "longterm") && state.kind !== "co2" ? "flex" : "none";
+  }
+  render();
+</script>
+</body>
+</html>

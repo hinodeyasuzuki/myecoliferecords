@@ -5,7 +5,10 @@ export default {
   props: ["data", "master"],
   data() {
     const now = new Date();
-    return { year: now.getFullYear(), month: now.getMonth() + 1 };
+    return {
+      year: now.getFullYear(),
+      month: now.getMonth() + 1,
+    };
   },
   computed: {
     ym() {
@@ -42,6 +45,9 @@ export default {
       this.year = year;
       this.month = month;
     },
+    openEnergyGraph() {
+      window.open("./energy/", "_blank", "noopener,noreferrer");
+    },
   },
   template: `
     <section id="energy-table">
@@ -74,6 +80,12 @@ export default {
           </tr>
         </tbody>
       </table>
+
+      <section id="energy-graph">
+        <h3>グラフ</h3>
+        <p>入力済みのデータを使って、別ページでグラフ表示できます。</p>
+        <button type="button" @click="openEnergyGraph">表示する</button>
+      </section>
     </section>
   `,
 };

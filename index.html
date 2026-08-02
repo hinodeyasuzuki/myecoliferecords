@@ -103,6 +103,58 @@
   #energy-table input[type="number"] {
     width: calc(100% - 3em);
   }
+  #energy-graph {
+    margin-top: 20px;
+    padding: 12px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+  }
+  #energy-graph .graph-controls {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    align-items: flex-end;
+    margin-bottom: 12px;
+  }
+  #energy-graph .graph-controls label {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 0.92em;
+  }
+  #energy-graph .graph-card {
+    padding: 8px;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    background: var(--bg);
+  }
+  #energy-graph .energy-chart {
+    width: 100%;
+    max-width: 520px;
+    height: auto;
+    display: block;
+  }
+  #energy-graph .chart-caption {
+    margin: 8px 0 0;
+    color: var(--muted);
+    font-size: 0.9em;
+  }
+  #energy-graph .chart-legend {
+    display: grid;
+    gap: 6px;
+    padding-left: 0;
+    margin: 10px 0 0;
+    list-style: none;
+    font-size: 0.9em;
+  }
+  #energy-graph .legend-color {
+    display: inline-block;
+    width: 12px;
+    height: 12px;
+    margin-right: 6px;
+    border-radius: 3px;
+  }
   #input-tab .rowtitle {
     width: 60%;
     display: inline-block;
