@@ -28,8 +28,8 @@ const MONTH_OPTIONS = [
 ];
 
 export default {
-  props: ["data", "master"],
-  emits: ["jump-repairlog", "jump-picture"],
+  props: ["data", "master", "highlightId"],
+  emits: ["jump-repairlog", "jump-picture", "consumed-highlight"],
   data() {
     return {
       methodOptions: METHOD_OPTIONS,
@@ -41,7 +41,20 @@ export default {
       equipShow: false,
       smLevel1Id: "",
       smLevel2Id: "",
+      isNarrow: window.innerWidth <= 600,
     };
+  },
+  created() {
+    if (this.highlightId) {
+      this.editingId = this.highlightId;
+      this.$emit("consumed-highlight");
+    }
+  },
+  mounted() {
+    window.addEventListener("resize", this.updateIsNarrow);
+  },
+  unmounted() {
+    window.removeEventListener("resize", this.updateIsNarrow);
   },
   computed: {
     equipsById() {
@@ -79,7 +92,7 @@ export default {
       if (!log) return lid + " (削除済み)";
       const dateParts = [log.year, log.month, log.day].filter((v) => v !== null && v !== undefined);
       const date = dateParts.length ? dateParts.join("/") : "";
-      const about = log.about || "(未入力)";
+      const about = log.about || (log.public_info || "(未入力)");
       return [date, about].filter(Boolean).join(" - ");
     },
     pictureSummaryFor(pid) {
@@ -208,6 +221,13 @@ export default {
     methodLabelFor(method) {
       return methodLabel(this.methodOptions, method);
     },
+    methodLabelDisplay(method) {
+      const label = this.methodLabelFor(method);
+      return this.isNarrow ? label.substring(0, 2) : label;
+    },
+    updateIsNarrow() {
+      this.isNarrow = window.innerWidth <= 600;
+    },
     getEquipTitle(equipId) {
       const equip = this.equipsById[equipId];
       return equip ? equip.title : "";
@@ -282,29 +302,29 @@ export default {
         　／　修理数：{{ sortedProductEntries.filter(([, item]) => item.repairlog_ids.length > 0).length }}件</p>
         <table>
           <thead>
-            <tr>
-              <th @click="setSort('name')" style="cursor:pointer;">呼び名 <span v-if="sortKey === 'name'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
-              <th @click="setSort('model')" style="cursor:pointer;">製品分類 <span v-if="sortKey === 'model'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
-              <th @click="setSort('purchaseyear')" style="cursor:pointer;">購入年 <span v-if="sortKey === 'purchaseyear'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
-              <th @click="setSort('method')" style="cursor:pointer;">調達方法 <span v-if="sortKey === 'method'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
-              <th @click="setSort('repaired')" style="cursor:pointer;">修理 <span v-if="sortKey === 'repaired'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
-              <th @click="setSort('favorite')" style="cursor:pointer;">愛用品 <span v-if="sortKey === 'favorite'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
-              <th @click="setSort('enduseyear')" style="cursor:pointer;">終了年 <span v-if="sortKey === 'enduseyear'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
+            <tr class="table-sortable">
+              <th @click="setSort('name')">呼び名 <span v-if="sortKey === 'name'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
+              <th @click="setSort('model')">製品分類 <span v-if="sortKey === 'model'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
+              <th @click="setSort('purchaseyear')">購入年 <span v-if="sortKey === 'purchaseyear'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
+              <th @click="setSort('method')">調達方法 <span v-if="sortKey === 'method'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
+              <th @click="setSort('repaired')">修理 <span v-if="sortKey === 'repaired'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
+              <th @click="setSort('favorite')">愛用品 <span v-if="sortKey === 'favorite'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
+              <th @click="setSort('enduseyear')" class="hide_sm">終了年 <span v-if="sortKey === 'enduseyear'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
               <th></th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="[id, item] in sortedProductEntries" :key="id">
+            <tr v-for="[id, item] in sortedProductEntries" :key="id" :class="item.enduseyear ? 'enduse' : ''">
               <td>
                 <img v-if="item.picture_ids.length && pictureSrc(item.picture_ids[0])" :src="pictureSrc(item.picture_ids[0])" class="picture-thumb-xs">
                 {{ item.name || "(未入力)" }}
               </td>
               <td>{{ modelNameFor(item) }}</td>
               <td>{{ item.purchaseyear }}</td>
-              <td>{{ methodLabelFor(item.method) }}</td>
+              <td>{{ methodLabelDisplay(item.method) }}</td>
               <td>{{ item.repairlog_ids.length > 0 ? "○" : "" }}</td>
-              <td>{{ item.favorite ? "★" : "" }}</td>
-              <td>{{ item.enduseyear }}</td>
+              <td>{{ item.favorite ? "❤" : "" }}</td>
+              <td class="hide_sm">{{ item.enduseyear }}</td>
               <td><button @click="startEdit(id)">編集</button></td>
             </tr>
           </tbody>

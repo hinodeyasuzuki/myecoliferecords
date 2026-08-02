@@ -7,17 +7,19 @@ import { pictureBlobs, ensurePictureBlobLoaded, clearPictureBlobCache } from "..
 
 export default {
   props: ["data", "highlightId"],
-  emits: ["consumed-highlight", "jump-picture"],
+  emits: ["consumed-highlight", "jump-picture", "jump-product"],
   data() {
     return {
       editingId: null,
       sortKey: "date",
       sortDir: "desc",
+      cameFromProduct: false,
     };
   },
   created() {
     if (this.highlightId) {
       this.editingId = this.highlightId;
+      this.cameFromProduct = true;
       this.$emit("consumed-highlight");
     }
   },
@@ -67,6 +69,14 @@ export default {
     },
     backToList() {
       this.editingId = null;
+    },
+    backToProduct() {
+      const log = this.data.repairlog[this.editingId];
+      if (log && log.equip_id && this.data.products[log.equip_id]) {
+        this.$emit("jump-product", log.equip_id);
+      } else {
+        this.backToList();
+      }
     },
     productNameForLog(log) {
       return productNameFor(this.data.products, log.equip_id);
@@ -120,7 +130,10 @@ export default {
       </template>
       <template v-else>
         <div v-if="data.repairlog[editingId]" style="border:1px solid var(--border); padding:12px; margin-bottom:12px; border-radius:6px;">
-          <p><button @click="backToList">← 一覧に戻る</button></p>
+          <p>
+            <button v-if="cameFromProduct" @click="backToProduct">← 機器に戻る</button>
+            <button v-else @click="backToList">← 一覧に戻る</button>
+          </p>
           <p><span class="rowtitle">{{ editingId }}</span> <button @click="removeLogAndBackToList(editingId)">削除</button></p>
           <p><span class="rowtitle">修理日</span>
             <input type="number" v-model.number="data.repairlog[editingId].year">年 
@@ -133,7 +146,7 @@ export default {
               <option v-for="(product, pid) in data.products" :key="pid" :value="pid">{{ pid }} ({{ product.name }})</option>
             </select>
           </p>
-          <p><span class="rowtitle">思い出</span> <textarea class="memory" v-model="data.repairlog[editingId].about"></textarea></p>
+          <p><span class="rowtitle">修理内容</span> <textarea class="memory" v-model="data.repairlog[editingId].about"></textarea></p>
           <p><span class="rowtitle">公開用情報</span> <textarea class="memory" v-model="data.repairlog[editingId].public_info"></textarea></p>
           <p><span class="rowtitle">写真</span>　<button @click="addPictureFor(editingId)">＋新規追加</button></p>
           <ul>

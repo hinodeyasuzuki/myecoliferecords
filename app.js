@@ -61,7 +61,7 @@ export const master = reactive({
   cons: [],
 });
 
-export const highlight = reactive({ repairlog: null, picture: null });
+export const highlight = reactive({ repairlog: null, picture: null, product: null });
 
 // マスタデータ(診断項目・機器分類・エネルギー種別等)は公開済みのAPIサイトから読み込む。
 // このリポジトリのdocs/api/v1/*.json をローカルで再ビルドしていなくても、
@@ -117,11 +117,18 @@ const app = createApp({
       highlight.picture = id;
       this.currentTab = "picture";
     },
+    jumpToProduct(id) {
+      highlight.product = id;
+      this.currentTab = "products";
+    },
     clearRepairlogHighlight() {
       highlight.repairlog = null;
     },
     clearPictureHighlight() {
       highlight.picture = null;
+    },
+    clearProductHighlight() {
+      highlight.product = null;
     },
     async exportJson() {
       let pictureBlobs = {};

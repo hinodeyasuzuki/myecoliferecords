@@ -53,6 +53,11 @@
     padding: 4px 2px;
     font-size: 0.9em;
   }
+  h1{
+    margin-bottom: 0.5em;
+    margin-top: 0;
+    background: linear-gradient(to right, #ff8, var(--card));
+  }
   .highlighted { outline: 2px solid var(--accent); }
   .rowtitle {
     display: inline-block;
@@ -70,8 +75,17 @@
     background: var(--card);
     overflow: hidden;
   }
+  th{
+    background: var(--card);
+  }
+  .table-sortable {
+    cursor: pointer;
+  }
   .equip-table-sm{
     display: none;
+  }
+  .enduse {
+    background: #e6e7e6;
   }
   textarea.memory {
     display: inline-block;
@@ -178,6 +192,7 @@
     font-size: 0.8em;
     color: var(--muted);
   }
+  .hide_pc { display: none; }
 
   @media (max-width: 600px) {
     #input-tab .rowtitle {
@@ -187,6 +202,10 @@
       width: 100%;
       text-align: right;
     }
+    main { padding: 5px 5px 60px; }
+    .hide_sm { display: none; }
+    .hide_pc { display: inline; }
+
   }
   @media (max-width: 660px) {
     #room-tab input[type="text"] {
@@ -233,6 +252,8 @@
       v-if="currentTab === 'products'"
       :data="data"
       :master="master"
+      :highlight-id="highlight.product"
+      @consumed-highlight="clearProductHighlight"
       @jump-repairlog="jumpToRepairlog"
       @jump-picture="jumpToPicture"
     ></tab-products>
@@ -243,6 +264,7 @@
       :highlight-id="highlight.repairlog"
       @consumed-highlight="clearRepairlogHighlight"
       @jump-picture="jumpToPicture"
+      @jump-product="jumpToProduct"
     ></tab-repairlog>
     <tab-picture
       v-if="currentTab === 'picture'"
