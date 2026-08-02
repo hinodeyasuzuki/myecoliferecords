@@ -2,11 +2,13 @@ import { isArrayCons, inputCountGroup } from "../lib/consArray.js";
 import { buildConsById, topLevelCons, resolveTopCons } from "../lib/consTree.js";
 
 const GENERAL_TAB = "consTotal";
+const SEASON_TAB = "consSeason";
+const SEASON_LABELS = ["冬の", "春秋の", "夏の"];
 
 export default {
   props: ["data", "master"],
   data() {
-    return { search: "", currentConsTab: GENERAL_TAB };
+    return { search: "", currentConsTab: GENERAL_TAB, seasonLabels: SEASON_LABELS };
   },
   computed: {
     consById() {
@@ -14,15 +16,14 @@ export default {
     },
     consTabs() {
       const general = this.master.cons.find((c) => c.code === GENERAL_TAB);
+      const season = { code: SEASON_TAB, title: "季節光熱費" };
       const categories = topLevelCons(this.master.cons);
-      return general ? [general, ...categories] : categories;
+      return general ? [general, season, ...categories] : [season, ...categories];
     },
     // 検索を無視した現在タブの全項目。ヘッダーのグループ(＋/－)ボタンは
     // 検索結果に関わらず常に操作できるようにするため、検索フィルタとは分ける。
     tabItems() {
-      return this.master.input.filter(
-        (item) => (resolveTopCons(this.consById, item.cons) || GENERAL_TAB) === this.currentConsTab
-      );
+      return this.master.input.filter((item) => this.topConsFor(item) === this.currentConsTab);
     },
     filteredItems() {
       const q = this.search.trim();
@@ -45,11 +46,31 @@ export default {
     },
   },
   methods: {
+    // 項目が属するタブのcodeを返す。consが"consSeason"の項目は季節光熱費タブへ、
+    // "consHTcold"の項目は暖房タブ(consHTsum)へ、それ以外はsumclassの連鎖
+    // (resolveTopCons)をたどって上位分類タブへ振り分ける。
+    topConsFor(item) {
+      if (item.cons === SEASON_TAB) return SEASON_TAB;
+      if (item.cons === "consHTcold") return "consHTsum";
+      return resolveTopCons(this.consById, item.cons) || GENERAL_TAB;
+    },
     setConsTab(code) {
       this.currentConsTab = code;
     },
     isArray(item) {
       return isArrayCons(item.cons);
+    },
+    isSeason(item) {
+      return item.cons === SEASON_TAB;
+    },
+    // 季節(冬/春秋/夏)ごとの値を保持する配列を用意する。
+    ensureSeasonArray(item) {
+      if (!Array.isArray(this.data.input[item.id])) {
+        this.data.input[item.id] = [];
+      }
+      const arr = this.data.input[item.id];
+      while (arr.length < SEASON_LABELS.length) arr.push(undefined);
+      return arr;
     },
     groupKeyFor(consCode) {
       return inputCountGroup(this.consById, consCode);
@@ -99,11 +120,15 @@ export default {
     decGroup(groupKey) {
       this.setGroupCount(groupKey, this.groupCount(groupKey) - 1);
     },
+    openDiagnosis() {
+      window.open("./d6/", "_blank", "noopener,noreferrer");
+    },
   },
   template: `
     <section id="input-tab">
       <h2>診断項目</h2>
       <!-- <p><input type="text" v-model="search" placeholder="項目を検索"></p> -->
+      <p style="color:var(--muted);">※自宅の利用状況を多く入力するほど、精度の高い診断が計算されます。</p>
       <nav class="tabs">
         <button
           v-for="t in consTabs"
@@ -125,7 +150,23 @@ export default {
         </div>
 
         <div class="rowvalue">
-          <template v-if="isArray(item)">
+          <template v-if="isSeason(item)">
+            <div style="display:flex; gap:16px; flex-wrap:wrap;">
+              <div v-for="(label, idx) in seasonLabels" :key="idx" style="display:flex; flex-direction:column; gap:2px;">
+                <span style="color:var(--muted); font-size:0.9em;">{{ label }}{{ item.title }}</span>
+                <template v-if="item.options && item.options.length">
+                  <select v-model.number="ensureSeasonArray(item)[idx]">
+                    <option v-for="opt in item.options" :key="opt.val" :value="opt.val">{{ opt.disp }}</option>
+                  </select>
+                </template>
+                <template v-else>
+                  <input :type="item.inputType === 'text' ? 'text' : 'number'" v-model.number="ensureSeasonArray(item)[idx]">
+                </template>
+              </div>
+            </div>
+          </template>
+
+          <template v-else-if="isArray(item)">
             <p v-if="groupCount(groupKeyFor(item.cons)) === 0" style="color:var(--muted);">(0件)</p>
             <div v-for="n in groupCount(groupKeyFor(item.cons))" :key="n" style="display:flex; gap:8px; margin-bottom:4px; align-items:center;">
               <span>{{ n }}</span>
@@ -150,6 +191,10 @@ export default {
           </template>
         </div>
       </template>
+      <section id="energy-graph">
+        <p>入力済みのデータを使って、別ページで家庭の省エネ診断ができます。</p>
+        <button type="button" @click="openDiagnosis">表示する</button>
+      </section>
     </section>
   `,
 };

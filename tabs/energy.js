@@ -51,7 +51,7 @@ export default {
   },
   template: `
     <section id="energy-table">
-      <h2>光熱</h2>
+      <h2>光熱（消費量・金額）</h2>
       <p>
         <select v-model.number="year">
           <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}年</option>
@@ -62,7 +62,6 @@ export default {
         <!--<span style="color:var(--muted)">({{ ym }})</span>-->
       </p>
 
-      <h3>光熱消費量・光熱費</h3>
       <table> 
         <thead>
           <tr><th class="item">項目</th><th class="amount">消費量</th><th class="amount">金額(円)</th></tr>
@@ -82,7 +81,6 @@ export default {
       </table>
 
       <section id="energy-graph">
-        <h3>グラフ</h3>
         <p>入力済みのデータを使って、別ページでグラフ表示できます。</p>
         <button type="button" @click="openEnergyGraph">表示する</button>
       </section>

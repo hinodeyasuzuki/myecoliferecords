@@ -247,8 +247,12 @@ export default {
     <section id="products-tab">
       <h2>機器</h2>
       <p v-if="selectId">選択中の機器分類: {{ getEquipTitle(selectId) }} <input type="button" value="クリア（すべて表示）" @click="selectId = null;equipShow = false"></p>
-      <input type="button" class="guide-toggle" value="機器分類を表示" v-if="!equipShow" @click="equipShow = true">
-      <input type="button" class="guide-toggle" value="機器分類を非表示" v-if="equipShow" @click="equipShow = false">
+      <p v-if="!equipShow">
+        <span class="guide-toggle" @click="equipShow = true">▼機器分類を表示</span>　
+        <span style="color:var(--muted);">※機器分類を表示すると、製品の種類で絞り込むことができます。</span>
+      </p>
+      <p v-if="equipShow"><span class="guide-toggle" @click="equipShow = false">▲機器分類を非表示</span></p>
+      
       <template v-if="equipShow">
         <table class="equip-table">
           <thead>
@@ -293,8 +297,6 @@ export default {
           </template>
         </div>
       </template>
-
-      <p v-if="!equipShow" style="color:var(--muted);">※機器分類を表示すると、製品の種類で絞り込むことができます。</p>
 
       <template v-if="editingId === null">
         <p>中古数：{{ sortedProductEntries.filter(([, item]) => item.method === 3 || item.method === 4 || item.method === 5).length }}件
