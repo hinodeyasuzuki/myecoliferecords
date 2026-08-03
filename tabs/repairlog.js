@@ -5,11 +5,19 @@ import { pictureSummary } from "../lib/pictureSummary.js";
 import { deletePictureBlob } from "../lib/pictureStore.js";
 import { pictureBlobs, ensurePictureBlobLoaded, clearPictureBlobCache } from "../lib/pictureBlobCache.js";
 
+const REPAIRER_OPTIONS = [
+  { val: 1, label: "自分" },
+  { val: 2, label: "家族・友人" },
+  { val: 3, label: "修理施設" },
+  { val: 4, label: "修理業者" },
+];
+
 export default {
   props: ["data", "highlightId"],
   emits: ["consumed-highlight", "jump-picture", "jump-product"],
   data() {
     return {
+      repairerOptions: REPAIRER_OPTIONS,
       editingId: null,
       sortKey: "date",
       sortDir: "desc",
@@ -146,6 +154,13 @@ export default {
               <option v-for="(product, pid) in data.products" :key="pid" :value="pid">{{ pid }} ({{ product.name }})</option>
             </select>
           </p>
+          <p><span class="rowtitle">修理者</span>
+            <select v-model.number="data.repairlog[editingId].repairer">
+              <option value="">選択してください</option>
+              <option v-for="m in repairerOptions" :key="m.val" :value="m.val">{{ m.label }}</option>
+            </select>
+          </p>
+          <p><span class="rowtitle">修理代</span><input type="number" v-model.number="data.repairlog[editingId].cost">円</p>
           <p><span class="rowtitle">修理内容</span> <textarea class="memory" v-model="data.repairlog[editingId].about"></textarea></p>
           <p><span class="rowtitle">公開用情報</span> <textarea class="memory" v-model="data.repairlog[editingId].public_info"></textarea></p>
           <p><span class="rowtitle">写真</span>　<button @click="addPictureFor(editingId)">＋新規追加</button></p>

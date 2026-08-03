@@ -6,6 +6,7 @@ import {
   level2Options as equipLevel2Options,
   level3Options as equipLevel3Options,
   resolveEquipSelection,
+  myRecordToThirdHandersEquip,
 } from "../lib/equipTree.js";
 import { modelName, methodLabel, sortProductEntries } from "../lib/productSort.js";
 import { pictureSummary } from "../lib/pictureSummary.js";
@@ -85,6 +86,9 @@ export default {
       const equip = this.equipsById[item.equip_id];
       return equip ? equip.energyFlag : null;
     },
+    ecouseFlag() {
+      return this.editingId === null ? false : this.data.products[this.editingId].method > 2;
+    }
   },
   methods: {
     repairlogSummary(lid) {
@@ -241,8 +245,14 @@ export default {
           selection.level2Id === equipId
         );
       });
-    }
-  },
+    },
+    openThirdHanders() {
+      const equipId = myRecordToThirdHandersEquip(this.equipsById);
+      this.selectId = equipId;
+      this.equipShow = false;
+      this.editingId = null;
+      const url = `https://thirdhanders.hinodeya-ecolife.com/submit?equip_id=${equipId}`;
+    },
   template: `
     <section id="products-tab">
       <h2>機器</h2>
@@ -337,8 +347,8 @@ export default {
         <div v-if="data.products[editingId]" style="border:1px solid var(--border); padding:12px; margin-bottom:12px; border-radius:6px;">
           <p><button @click="backToList">← 一覧に戻る</button></p>
           <p><strong>{{ editingId }}</strong> <button @click="removeProductAndBackToList(editingId)">削除</button></p>
-          <p><span class="rowtitle">呼び名</span> <input type="text" v-model="data.products[editingId].name"></p>
-          <p><span class="rowtitle">製品分類</span>
+          <p><span class="rowtitle">呼び名<span class="open">*</span></span> <input type="text" v-model="data.products[editingId].name"></p>
+          <p class="rowtitlepadding"><span class="rowtitle">製品分類<span class="open">*</span></span>
             <select :value="equipSelection(data.products[editingId]).level1Id" @change="setEquip(data.products[editingId], $event.target.value)">
               <option value="">選択してください</option>
               <option v-for="eq in level1Options" :key="eq.id" :value="eq.id">{{ eq.title }}</option>
@@ -352,17 +362,21 @@ export default {
               <option v-for="eq in level3Options(equipSelection(data.products[editingId]).level2Id)" :key="eq.id" :value="eq.id">{{ eq.title }}</option>
             </select>
           </p>
-          <p><span class="rowtitle">購入年月</span> <input type="number" v-model.number="data.products[editingId].purchaseyear">年
+          <p><span class="rowtitle">購入年月<span class="open">*</span></span> <input type="number" v-model.number="data.products[editingId].purchaseyear">年
             <select v-model.number="data.products[editingId].purchasemonth">
               <option v-for="m in monthOptions" :key="m.val" :value="m.val">{{ m.label }}</option>
             </select>
           </p>
-          <p><span class="rowtitle">調達方法</span>
+          <p><span class="rowtitle">調達方法<span class="open">*</span></span>
             <select v-model.number="data.products[editingId].method">
               <option value="">選択してください</option>
               <option v-for="m in methodOptions" :key="m.val" :value="m.val">{{ m.label }}</option>
             </select>
           </p>
+          <p><span class="rowtitle">メーカー</span> <input type="text" class="w100" v-model="data.products[editingId].maker"></p>
+          <p><span class="rowtitle">型番</span> <input type="text" class="w100" v-model="data.products[editingId].modelnumber"></p>
+          <p><span class="rowtitle">販売者</span> <input type="text" class="w100" v-model="data.products[editingId].seller"></p>
+
           <p><span class="rowtitle">愛用品</span> <input type="checkbox" v-model="data.products[editingId].favorite"></p>
           <p v-if="data.products[editingId].method == 3 || data.products[editingId].method == 4"><span class="rowtitle">製造年</span> <input type="number" v-model.number="data.products[editingId].manufactureyear"></p>
           <p><span class="rowtitle">部屋</span>
@@ -383,7 +397,7 @@ export default {
               <!-- <button @click.stop="removeRepairlogEntry(lid)">削除</button> -->
             </li>
           </ul>
-          <p><span class="rowtitle">写真</span>　<button @click="addPictureFor(editingId)">＋新規追加</button></p>
+          <p><span class="rowtitle">写真<span class="open">*</span></span>　<button @click="addPictureFor(editingId)">＋新規追加</button></p>
           <ul>
             <li v-for="pid in data.products[editingId].picture_ids" :key="pid">
               <a href="#" @click.prevent="$emit('jump-picture', pid)">
@@ -394,10 +408,15 @@ export default {
             </li>
           </ul>
           <p><span class="rowtitle">思い出</span> <textarea class="memory" v-model="data.products[editingId].memory"></textarea></p>
-          <p><span class="rowtitle">公開用情報</span> <textarea class="memory" v-model="data.products[editingId].public_info"></textarea></p>
+          <p><span class="rowtitle">公開用情報<span class="open">*</span></span> <textarea class="memory" v-model="data.products[editingId].public_info"></textarea></p>
           <p><span class="rowtitle">使用終了年</span> <input type="number" v-model.number="data.products[editingId].enduseyear">年</p>
         </div>
       </template>
+
+      <section id="energy-graph" v-if="ecouseFlag">
+        <p><span class="open">*</span> がついた入力済みのデータを、一般に公開することができます。<a href="https://thirdhanders.hinodeya-ecolife.com/">ThirdHanders</a>へのログインが必要です。</p>
+        <button type="button" @click="openThirdHanders">公開する</button>
+      </section>
     </section>
   `,
 };
