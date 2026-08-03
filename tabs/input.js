@@ -121,7 +121,7 @@ export default {
       this.setGroupCount(groupKey, this.groupCount(groupKey) - 1);
     },
     openDiagnosis() {
-      window.open("./d6/", "_blank", "noopener,noreferrer");
+      location.href = "./d6/";
     },
   },
   template: `

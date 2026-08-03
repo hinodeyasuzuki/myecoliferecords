@@ -46,7 +46,7 @@ export default {
       this.month = month;
     },
     openEnergyGraph() {
-      window.open("./energy/", "_blank", "noopener,noreferrer");
+      location.href = "./energy/";
     },
   },
   template: `
