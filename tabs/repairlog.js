@@ -2,7 +2,7 @@ import { nextId } from "../lib/id.js";
 import { removeRepairlog, removePicture as unlinkPicture, setRepairlogEquip } from "../lib/unlink.js";
 import { productNameFor, dateLabel, sortRepairlogEntries } from "../lib/repairlogSort.js";
 import { pictureSummary } from "../lib/pictureSummary.js";
-import { deletePictureBlob } from "../lib/pictureStore.js";
+import { deletePictureBlob, getPictureBlob } from "../lib/pictureStore.js";
 import { pictureBlobs, ensurePictureBlobLoaded, clearPictureBlobCache } from "../lib/pictureBlobCache.js";
 
 const REPAIRER_OPTIONS = [
@@ -110,6 +110,53 @@ export default {
       ensurePictureBlobLoaded(id);
       return pictureBlobs[id] || "";
     },
+    async copyToThirdHanders() {
+      const log = this.data.repairlog[this.editingId];
+      if (!log) return;
+      const product = this.data.products[log.equip_id];
+      const logPictureIds = log.picture_ids.slice(0, 2);
+      const remaining = 2 - logPictureIds.length;
+      const productPictureIds =
+        remaining > 0 && product
+          ? product.picture_ids.filter((pid) => !logPictureIds.includes(pid)).slice(0, remaining)
+          : [];
+      const repairerOption = this.repairerOptions.find((o) => o.val === log.repairer);
+      const picture = {};
+      for (const pid of [...logPictureIds, ...productPictureIds]) {
+        const pic = this.data.picture[pid];
+        picture[pid] = {
+          data: (await getPictureBlob(pid)) || "",
+          memo: pic ? pic.memo : "",
+        };
+      }
+      const payload = {
+        products: {
+          [log.equip_id]: {
+            equip_id: product ? product.equip_id : "",
+            name: product ? product.name : "",
+            purchaseyear: product ? product.purchaseyear : null,
+            picture_ids: productPictureIds,
+          },
+        },
+        repairlog: {
+          [this.editingId]: {
+            public_info: log.public_info,
+            year: log.year,
+            repairer: repairerOption ? repairerOption.label : "",
+            cost: log.cost,
+            picture_ids: logPictureIds,
+          },
+        },
+        picture,
+      };
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(payload));
+        alert("コピーしました");
+      } catch (err) {
+        console.error(err);
+        alert("コピーに失敗しました");
+      }
+    },
   },
   template: `
     <section id="repairlog-tab">
@@ -174,6 +221,11 @@ export default {
             </li>
           </ul>
           <!-- <p><span class="rowtitle">作成日時</span> <input type="text" v-model="data.repairlog[editingId].created_at"></p> -->
+
+          <section id="repairlog-thirdhanders">
+            <p>入力済みのデータを、<a href="https://thirdhanders.hinodeya-ecolife.com/">Third Handers</a>から、公開することができます。Third Handersサイトにログインして、コピーしたデータを貼り付けてください。</p>
+            <button type="button" @click="copyToThirdHanders">コピーする</button>
+          </section>
         </div>
       </template>
     </section>

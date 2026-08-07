@@ -10,7 +10,7 @@ import {
 } from "../lib/equipTree.js";
 import { modelName, methodLabel, sortProductEntries } from "../lib/productSort.js";
 import { pictureSummary } from "../lib/pictureSummary.js";
-import { deletePictureBlob } from "../lib/pictureStore.js";
+import { deletePictureBlob, getPictureBlob } from "../lib/pictureStore.js";
 import { pictureBlobs, ensurePictureBlobLoaded, clearPictureBlobCache } from "../lib/pictureBlobCache.js";
 
 const METHOD_OPTIONS = [
@@ -246,13 +246,40 @@ export default {
         );
       });
     },
-    openThirdHanders() {
-      const equipId = myRecordToThirdHandersEquip(this.equipsById);
-      this.selectId = equipId;
-      this.equipShow = false;
-      this.editingId = null;
-      const url = `https://thirdhanders.hinodeya-ecolife.com/submit?equip_id=${equipId}`;
+    async copyToThirdHanders() {
+      const item = this.data.products[this.editingId];
+      if (!item) return;
+      const pictureIds = item.picture_ids.slice(0, 2);
+      const picture = {};
+      for (const pid of pictureIds) {
+        const pic = this.data.picture[pid];
+        picture[pid] = {
+          data: (await getPictureBlob(pid)) || "",
+          memo: pic ? pic.memo : "",
+        };
+      }
+      const payload = {
+        products: {
+          [this.editingId]: {
+            equip_id: item.equip_id,
+            name: item.name,
+            method: item.method,
+            purchaseyear: item.purchaseyear,
+            public_info: item.public_info,
+            picture_ids: pictureIds,
+          },
+        },
+        picture,
+      };
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(payload));
+        alert("コピーしました");
+      } catch (err) {
+        console.error(err);
+        alert("コピーに失敗しました");
+      }
     },
+  },
   template: `
     <section id="products-tab">
       <h2>機器</h2>
@@ -414,8 +441,8 @@ export default {
       </template>
 
       <section id="energy-graph" v-if="ecouseFlag">
-        <p><span class="open">*</span> がついた入力済みのデータを、一般に公開することができます。<a href="https://thirdhanders.hinodeya-ecolife.com/">ThirdHanders</a>へのログインが必要です。</p>
-        <button type="button" @click="openThirdHanders">公開する</button>
+        <p><span class="open">*</span> がついた入力済みのデータを、<a href="https://thirdhanders.hinodeya-ecolife.com/">Third Handers</a>から、公開することができます。Third Handersサイトにログインして、コピーしたデータを貼り付けてください。</p>
+        <button type="button" @click="copyToThirdHanders">コピーする</button>
       </section>
     </section>
   `,
