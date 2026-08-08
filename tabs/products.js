@@ -6,7 +6,6 @@ import {
   level2Options as equipLevel2Options,
   level3Options as equipLevel3Options,
   resolveEquipSelection,
-  myRecordToThirdHandersEquip,
 } from "../lib/equipTree.js";
 import { modelName, methodLabel, sortProductEntries } from "../lib/productSort.js";
 import { pictureSummary } from "../lib/pictureSummary.js";
