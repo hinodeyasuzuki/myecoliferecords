@@ -2,14 +2,22 @@ import { nextId } from "../lib/id.js";
 import { removeRepairlog, removePicture as unlinkPicture, setRepairlogEquip } from "../lib/unlink.js";
 import { productNameFor, dateLabel, sortRepairlogEntries } from "../lib/repairlogSort.js";
 import { pictureSummary } from "../lib/pictureSummary.js";
-import { deletePictureBlob } from "../lib/pictureStore.js";
+import { deletePictureBlob, getPictureBlob } from "../lib/pictureStore.js";
 import { pictureBlobs, ensurePictureBlobLoaded, clearPictureBlobCache } from "../lib/pictureBlobCache.js";
+
+const REPAIRER_OPTIONS = [
+  { val: 1, label: "自分" },
+  { val: 2, label: "家族・友人" },
+  { val: 3, label: "修理施設" },
+  { val: 4, label: "修理業者" },
+];
 
 export default {
   props: ["data", "highlightId"],
   emits: ["consumed-highlight", "jump-picture", "jump-product"],
   data() {
     return {
+      repairerOptions: REPAIRER_OPTIONS,
       editingId: null,
       sortKey: "date",
       sortDir: "desc",
@@ -40,7 +48,7 @@ export default {
         year: null,
         month: null,
         day: null,
-        equip_id: "",
+        product_id: "",
         about: "",
         picture_ids: [],
         created_at: new Date().toISOString(),
@@ -72,14 +80,14 @@ export default {
     },
     backToProduct() {
       const log = this.data.repairlog[this.editingId];
-      if (log && log.equip_id && this.data.products[log.equip_id]) {
-        this.$emit("jump-product", log.equip_id);
+      if (log && log.product_id && this.data.products[log.product_id]) {
+        this.$emit("jump-product", log.product_id);
       } else {
         this.backToList();
       }
     },
     productNameForLog(log) {
-      return productNameFor(this.data.products, log.equip_id);
+      return productNameFor(this.data.products, log.product_id);
     },
     dateLabelFor(log) {
       return dateLabel(log);
@@ -101,6 +109,53 @@ export default {
     pictureSrc(id) {
       ensurePictureBlobLoaded(id);
       return pictureBlobs[id] || "";
+    },
+    async copyToThirdHanders() {
+      const log = this.data.repairlog[this.editingId];
+      if (!log) return;
+      const product = this.data.products[log.product_id];
+      const logPictureIds = log.picture_ids.slice(0, 2);
+      const remaining = 2 - logPictureIds.length;
+      const productPictureIds =
+        remaining > 0 && product
+          ? product.picture_ids.filter((pid) => !logPictureIds.includes(pid)).slice(0, remaining)
+          : [];
+      const repairerOption = this.repairerOptions.find((o) => o.val === log.repairer);
+      const picture = {};
+      for (const pid of [...logPictureIds, ...productPictureIds]) {
+        const pic = this.data.picture[pid];
+        picture[pid] = {
+          data: (await getPictureBlob(pid)) || "",
+          memo: pic ? pic.memo : "",
+        };
+      }
+      const payload = {
+        products: {
+          [log.product_id]: {
+            equip_id: product ? product.equip_id : "",
+            name: product ? product.name : "",
+            purchaseyear: product ? product.purchaseyear : null,
+            picture_ids: productPictureIds,
+          },
+        },
+        repairlog: {
+          [this.editingId]: {
+            public_info: log.public_info,
+            year: log.year,
+            repairer: repairerOption ? repairerOption.label : "",
+            cost: log.cost,
+            picture_ids: logPictureIds,
+          },
+        },
+        picture,
+      };
+      try {
+        await navigator.clipboard.writeText(JSON.stringify(payload));
+        alert("コピーしました");
+      } catch (err) {
+        console.error(err);
+        alert("コピーに失敗しました");
+      }
     },
   },
   template: `
@@ -141,11 +196,18 @@ export default {
             <input type="number" v-model.number="data.repairlog[editingId].day">日
           </p>
           <p><span class="rowtitle">機器</span>
-            <select :value="data.repairlog[editingId].equip_id" @change="setEquipForLog(editingId, $event.target.value)">
+            <select :value="data.repairlog[editingId].product_id" @change="setEquipForLog(editingId, $event.target.value)">
               <option value="">選択してください</option>
               <option v-for="(product, pid) in data.products" :key="pid" :value="pid">{{ pid }} ({{ product.name }})</option>
             </select>
           </p>
+          <p><span class="rowtitle">修理者</span>
+            <select v-model.number="data.repairlog[editingId].repairer">
+              <option value="">選択してください</option>
+              <option v-for="m in repairerOptions" :key="m.val" :value="m.val">{{ m.label }}</option>
+            </select>
+          </p>
+          <p><span class="rowtitle">修理代</span><input type="number" v-model.number="data.repairlog[editingId].cost">円</p>
           <p><span class="rowtitle">修理内容</span> <textarea class="memory" v-model="data.repairlog[editingId].about"></textarea></p>
           <p><span class="rowtitle">公開用情報</span> <textarea class="memory" v-model="data.repairlog[editingId].public_info"></textarea></p>
           <p><span class="rowtitle">写真</span>　<button @click="addPictureFor(editingId)">＋新規追加</button></p>
@@ -159,6 +221,11 @@ export default {
             </li>
           </ul>
           <!-- <p><span class="rowtitle">作成日時</span> <input type="text" v-model="data.repairlog[editingId].created_at"></p> -->
+
+          <section id="repairlog-thirdhanders">
+            <p>入力済みのデータを、<a href="https://thirdhanders.hinodeya-ecolife.com/">Third Handers</a>から、公開することができます。Third Handersサイトにログインして、コピーしたデータを貼り付けてください。</p>
+            <button type="button" @click="copyToThirdHanders">コピーする</button>
+          </section>
         </div>
       </template>
     </section>
