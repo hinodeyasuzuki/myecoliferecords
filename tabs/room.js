@@ -21,12 +21,23 @@ export default {
       setRoomConnections(this.data, id, values);
     },
   },
+  computed: {
+    isNodata() {
+      return !Object.keys(this.data.room).length;
+    }
+  },
+  created() {
+    if (this.isNodata) {
+      this.modeEdit = true;
+    }
+  },
+
   template: `
     <section id="room-tab">
       <h2>部屋</h2>
       <input type="button" value="部屋を編集する" v-if="!modeEdit" @click="modeEdit = true">
-      <p v-if="!modeEdit && !Object.keys(data.room).length" style="color:var(--muted);">※自宅の部屋の呼び名や広さを設定できます。</p>
-      <input type="button" value="編集を終了する" v-if="modeEdit" @click="modeEdit = false">
+      <p v-if="!modeEdit && !isNodata" style="color:var(--muted);">※自宅の部屋の呼び名や広さを設定できます。</p>
+      <input type="button" value="編集を終了する" v-if="modeEdit && !isNodata" @click="modeEdit = false">
       <p v-if="modeEdit" style="color:var(--muted);">※部屋は、居室だけでなく、廊下や階段なども記載してください。呼び方は自由です。<br/>
       ※行き来できる部屋は、CtrlキーやShiftキーを押しながら複数選択・選択解除できます。
       </p>
