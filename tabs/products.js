@@ -137,7 +137,7 @@ export default {
         year: null,
         month: null,
         day: null,
-        equip_id: productId,
+        product_id: productId,
         about: "",
         picture_ids: [],
         created_at: new Date().toISOString(),

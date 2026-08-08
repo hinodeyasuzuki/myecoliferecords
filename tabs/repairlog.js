@@ -48,7 +48,7 @@ export default {
         year: null,
         month: null,
         day: null,
-        equip_id: "",
+        product_id: "",
         about: "",
         picture_ids: [],
         created_at: new Date().toISOString(),
@@ -80,14 +80,14 @@ export default {
     },
     backToProduct() {
       const log = this.data.repairlog[this.editingId];
-      if (log && log.equip_id && this.data.products[log.equip_id]) {
-        this.$emit("jump-product", log.equip_id);
+      if (log && log.product_id && this.data.products[log.product_id]) {
+        this.$emit("jump-product", log.product_id);
       } else {
         this.backToList();
       }
     },
     productNameForLog(log) {
-      return productNameFor(this.data.products, log.equip_id);
+      return productNameFor(this.data.products, log.product_id);
     },
     dateLabelFor(log) {
       return dateLabel(log);
@@ -113,7 +113,7 @@ export default {
     async copyToThirdHanders() {
       const log = this.data.repairlog[this.editingId];
       if (!log) return;
-      const product = this.data.products[log.equip_id];
+      const product = this.data.products[log.product_id];
       const logPictureIds = log.picture_ids.slice(0, 2);
       const remaining = 2 - logPictureIds.length;
       const productPictureIds =
@@ -131,7 +131,7 @@ export default {
       }
       const payload = {
         products: {
-          [log.equip_id]: {
+          [log.product_id]: {
             equip_id: product ? product.equip_id : "",
             name: product ? product.name : "",
             purchaseyear: product ? product.purchaseyear : null,
@@ -196,7 +196,7 @@ export default {
             <input type="number" v-model.number="data.repairlog[editingId].day">日
           </p>
           <p><span class="rowtitle">機器</span>
-            <select :value="data.repairlog[editingId].equip_id" @change="setEquipForLog(editingId, $event.target.value)">
+            <select :value="data.repairlog[editingId].product_id" @change="setEquipForLog(editingId, $event.target.value)">
               <option value="">選択してください</option>
               <option v-for="(product, pid) in data.products" :key="pid" :value="pid">{{ pid }} ({{ product.name }})</option>
             </select>
