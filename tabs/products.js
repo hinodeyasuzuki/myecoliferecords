@@ -95,7 +95,7 @@ export default {
       if (!log) return lid + " (削除済み)";
       const dateParts = [log.year, log.month, log.day].filter((v) => v !== null && v !== undefined);
       const date = dateParts.length ? dateParts.join("/") : "";
-      const about = log.about || (log.public_info || "(未入力)");
+      const about = log.about ||  "(未入力)";
       return [date, about].filter(Boolean).join(" - ");
     },
     pictureSummaryFor(pid) {
@@ -119,7 +119,6 @@ export default {
         repairlog_ids: [],
         picture_ids: [],
         memory: "",
-        public_info: "",
       };
       return id;
     },
@@ -437,7 +436,6 @@ export default {
             </li>
           </ul>
           <p><span class="rowtitle">思い出<span class="open">*</span></span> <textarea class="memory" v-model="data.products[editingId].memory"></textarea></p>
-          <!-- <p><span class="rowtitle">公開用情報<span class="open">*</span></span> <textarea class="memory" v-model="data.products[editingId].public_info"></textarea></p> -->
           <p><span class="rowtitle">使用終了年</span> <input type="number" v-model.number="data.products[editingId].enduseyear">年</p>
         </div>
       </template>

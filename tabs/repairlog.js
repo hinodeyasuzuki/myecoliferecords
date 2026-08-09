@@ -209,7 +209,6 @@ export default {
           </p>
           <p><span class="rowtitle">修理代<span class="open">*</span></span><input type="number" v-model.number="data.repairlog[editingId].cost">円</p>
           <p><span class="rowtitle">修理内容<span class="open">*</span></span> <textarea class="memory" v-model="data.repairlog[editingId].about"></textarea></p>
-          <!-- <p><span class="rowtitle">公開用情報</span> <textarea class="memory" v-model="data.repairlog[editingId].public_info"></textarea></p> -->
           <p><span class="rowtitle">写真<span class="open">*</span></span>　<button @click="addPictureFor(editingId)">＋新規追加</button></p>
           <ul>
             <li v-for="pid in data.repairlog[editingId].picture_ids" :key="pid">
