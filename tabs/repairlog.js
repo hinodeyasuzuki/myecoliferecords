@@ -181,7 +181,7 @@ export default {
           </tbody>
         </table>
         <!-- <button @click="addLog">＋修理履歴を追加</button> -->
-        <p>※修理履歴を追加する場合は、まず機器を登録してください。</p>
+        <p>※修理履歴を追加する場合は、まず修理した機器を登録してください。</p>
       </template>
       <template v-else>
         <div v-if="data.repairlog[editingId]" style="border:1px solid var(--border); padding:12px; margin-bottom:12px; border-radius:6px;">
