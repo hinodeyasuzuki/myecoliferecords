@@ -6,6 +6,7 @@ import {
   level2Options as equipLevel2Options,
   level3Options as equipLevel3Options,
   resolveEquipSelection,
+  getEquipIcon,
 } from "../lib/equipTree.js";
 import { modelName, methodLabel, sortProductEntries } from "../lib/productSort.js";
 import { pictureSummary } from "../lib/pictureSummary.js";
@@ -244,6 +245,9 @@ export default {
         );
       });
     },
+    getEquipIcon(id) {
+      return getEquipIcon(id);
+    },
     async copyToThirdHanders() {
       const item = this.data.products[this.editingId];
       if (!item) return;
@@ -281,58 +285,33 @@ export default {
   template: `
     <section id="products-tab">
       <h2>機器</h2>
-      <p v-if="!equipShow">
-        <span class="guide-toggle" @click="equipShow = true">▼機器分類を表示</span>　
-        <span style="color:var(--muted);">※約340種類の機器分類が選べます。</span>
-      </p>
-      <p v-if="equipShow"><span class="guide-toggle" @click="equipShow = false">▲機器分類を非表示</span></p>
+      <div class="category">
+        <button @click="selectId = null;smLevel1Id='';smLevel2Id='';equipShow=true;">📋 すべて</button>
+        <button v-for="eq1 in level1Options" :key="eq1.id" @click="smSelectLevel1(eq1.id);equipShow=true;" :class="{highlighted: smLevel1Id == eq1.id}">
+          {{ getEquipIcon(eq1.id) }} {{ eq1.title }}
+        </button>
+      </div>
       
-      <template v-if="equipShow">
+      <div v-if="smLevel1Id && equipShow">
         <table class="equip-table">
           <thead>
-            <tr><th>大分類</th><th>中分類</th><th>小分類</th></tr>
+            <tr><th>中分類</th><th>小分類　<span class="up" @click="equipShow = false;">▲表示を消す</span></th></tr>
           </thead>
           <tbody>
-            <tr v-for="eq1 in level1Options" :key="eq1.id">
-              <td><input type="button" :value="eq1.title" @click="selectId = eq1.id;equipShow = false;editingId = null"></td>
+            <tr v-for="eq2 in level2Options(smLevel1Id)" :key="eq2.id">
+              <td><input type="button" :value="eq2.title" @click="selectId = eq2.id;equipShow = false;editingId = null"></td>
               <td>
-                <template v-for="eq2 in level2Options(eq1.id)" :key="eq2.id">
-                  <input type="button" :value="eq2.title" @click="selectId = eq2.id;equipShow = false;editingId = null"><br>
-                </template>
-              </td>
-              <td>
-                <template v-for="eq2 in level2Options(eq1.id)" :key="eq2.id">
-                  <template v-for="eq3 in level3Options(eq2.id)" :key="eq3.id">
-                    <input type="button" :value="eq3.title" :class="{highlighted: existEquipInProducts(eq3.id)}" @click="selectId = eq3.id;equipShow = false;editingId = null">
-                  </template>
-                  <br>
+                <template v-for="eq3 in level3Options(eq2.id)" :key="eq3.id">
+                  <input type="button" :value="eq3.title" :class="{highlighted: existEquipInProducts(eq3.id)}" @click="selectId = eq3.id;equipShow = false;editingId = null">
                 </template>
               </td>
             </tr>
           </tbody>
         </table>
-        <div class="equip-table-sm">
-          <template v-if="smLevel1Id === ''">
-            <input type="button" v-for="eq1 in level1Options" :key="eq1.id" :value="eq1.title" @click="smSelectLevel1(eq1.id)">
-          </template>
-          <template v-else-if="smLevel2Id === ''">
-            <p>
-              <a href="#" @click.prevent="smBackToLevel1">{{ getEquipTitle(smLevel1Id) }}</a>
-            </p>
-            <input type="button" v-for="eq2 in level2Options(smLevel1Id)" :key="eq2.id" :value="eq2.title" @click="smSelectLevel2(eq2.id)">
-            <p><input type="button" :value="'「' + getEquipTitle(smLevel1Id) + '」で入力'" @click="addProductForEquip(smLevel1Id)"></p>
-          </template>
-          <template v-else>
-            <p>
-              <a href="#" @click.prevent="smBackToLevel1">{{ getEquipTitle(smLevel1Id) }}</a>＞<a href="#" @click.prevent="smBackToLevel2">{{ getEquipTitle(smLevel2Id) }}</a>
-            </p>
-            <input type="button" v-for="eq3 in level3Options(smLevel2Id)" :key="eq3.id" :value="eq3.title" :class="{highlighted: existEquipInProducts(eq3.id)}" @click="addProductForEquip(eq3.id)">
-            <p><input type="button" :value="'「' + getEquipTitle(smLevel2Id) + '」で入力'" @click="addProductForEquip(smLevel2Id)"></p>
-          </template>
-        </div>
-      </template>
+        <span class="up" @click="equipShow = false;">▲表示を消す</span>
+      </div>
 
-      <p v-if="selectId">選択中の機器分類: {{ getEquipTitle(selectId) }} <input type="button" value="選択クリア（すべて表示）" @click="selectId = null;equipShow = false"></p>
+      <p v-if="selectId && !equipShow">選択中の機器分類: {{ getEquipTitle(selectId) }} </p>
 
       <template v-if="editingId === null">
         <p>中古数：{{ sortedProductEntries.filter(([, item]) => item.method === 3 || item.method === 4 || item.method === 5).length }}件

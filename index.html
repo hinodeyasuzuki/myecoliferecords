@@ -213,12 +213,29 @@
     border: 1px solid var(--border);
     border-radius: 6px;
   }
-  #products-tab .equip-table-sm input[type="button"] {
+  #products-tab .equip-table input[type="button"] {
+    display: inline-block;
     border-radius: 6px;
     padding: 3px;
     margin-bottom: 3px;
     margin-right: 3px;
   }
+  #products-tab .category button{
+    display:inline-block;
+    vertical-align: top;
+    align-items: center;
+    width:11% ;
+    min-height:50px;
+    border-radius: 6px;
+    padding: 3px;
+    margin-bottom: 3px; 
+  }
+
+   #products-tab .up{
+    text-decoration: underline;
+    cursor: pointer;
+    color:blue;
+   }
 
   #picture-tab .picture-card {
     border: 1px solid var(--border);
@@ -318,9 +335,6 @@
     }
   }
   @media (max-width: 920px) {
-    .equip-table{
-      display: none;
-    }
     .equip-table-sm{
       display: block;
       padding:10px;
