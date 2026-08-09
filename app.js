@@ -78,11 +78,12 @@ const app = createApp({
   data() {
     return {
       loading: true,
-      currentTab: "room",
+      currentTab: "top",
       data,
       master,
       highlight,
       tabs: [
+        { id: "top", label: "トップ" },
         { id: "room", label: "部屋" },
         { id: "products", label: "機器" },
         { id: "repairlog", label: "修理履歴" },
@@ -180,6 +181,8 @@ const app = createApp({
   },
 });
 
+import TopTab from "./tabs/top.js";
+app.component("tab-top", TopTab);
 import RoomTab from "./tabs/room.js";
 app.component("tab-room", RoomTab);
 import ProductsTab from "./tabs/products.js";

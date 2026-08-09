@@ -36,6 +36,32 @@
     background: var(--card); color: var(--fg); cursor: pointer; font-size: 0.95rem;
   }
   nav.tabs button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+  #top-tab .top-action-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    margin: 16px 0 24px;
+  }
+  #top-tab .top-action-card {
+    padding: 12px 14px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--card);
+  }
+  #top-tab .top-action-card h3 {
+    margin: 0 0 8px;
+  }
+  #top-tab .top-action-card p {
+    margin: 0 0 8px;
+  }
+  #top-tab .top-action-card p:last-child {
+    margin-bottom: 0;
+  }
+  @media (max-width: 768px) {
+    #top-tab .top-action-grid {
+      grid-template-columns: 1fr;
+    }
+  }
   table { width: 100%; border-collapse: collapse; margin-bottom: 16px; }
   th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--border); }
   input[type="text"], input[type="number"], select, textarea {
@@ -114,44 +140,44 @@
   #energy-table input[type="number"] {
     width: calc(100% - 3em);
   }
-  #energy-graph {
+  .outershare {
     margin-top: 20px;
     padding: 12px;
     border: 1px solid var(--border);
     border-radius: 8px;
     background: var(--card);
   }
-  #energy-graph .graph-controls {
+  .outershare .graph-controls {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
     align-items: flex-end;
     margin-bottom: 12px;
   }
-  #energy-graph .graph-controls label {
+  .outershare .graph-controls label {
     display: flex;
     flex-direction: column;
     gap: 4px;
     font-size: 0.92em;
   }
-  #energy-graph .graph-card {
+  .outershare .graph-card {
     padding: 8px;
     border: 1px solid var(--border);
     border-radius: 6px;
     background: var(--bg);
   }
-  #energy-graph .energy-chart {
+  .outershare .energy-chart {
     width: 100%;
     max-width: 520px;
     height: auto;
     display: block;
   }
-  #energy-graph .chart-caption {
+  .outershare .chart-caption {
     margin: 8px 0 0;
     color: var(--muted);
     font-size: 0.9em;
   }
-  #energy-graph .chart-legend {
+  .outershare .chart-legend {
     display: grid;
     gap: 6px;
     padding-left: 0;
@@ -159,7 +185,7 @@
     list-style: none;
     font-size: 0.9em;
   }
-  #energy-graph .legend-color {
+  .outershare .legend-color {
     display: inline-block;
     width: 12px;
     height: 12px;
@@ -323,6 +349,7 @@
     </nav>
 
     <tab-input v-if="currentTab === 'input'" :data="data" :master="master"></tab-input>
+    <tab-top v-if="currentTab === 'top'" :data="data"></tab-top>
     <tab-room v-if="currentTab === 'room'" :data="data"></tab-room>
     <tab-products
       v-if="currentTab === 'products'"

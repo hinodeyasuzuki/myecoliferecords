@@ -140,7 +140,7 @@ export default {
         },
         repairlog: {
           [this.editingId]: {
-            public_info: log.public_info,
+            about: log.about,
             year: log.year,
             repairer: repairerOption ? repairerOption.label : "",
             cost: log.cost,
@@ -190,27 +190,27 @@ export default {
             <button v-else @click="backToList">← 一覧に戻る</button>
           </p>
           <p><span class="rowtitle">{{ editingId }}</span> <button @click="removeLogAndBackToList(editingId)">削除</button></p>
-          <p><span class="rowtitle">修理日</span>
+          <p><span class="rowtitle">修理日<span class="open">*</span></span>
             <input type="number" v-model.number="data.repairlog[editingId].year">年 
             <input type="number" v-model.number="data.repairlog[editingId].month">月 
             <input type="number" v-model.number="data.repairlog[editingId].day">日
           </p>
-          <p><span class="rowtitle">機器</span>
+          <p><span class="rowtitle">機器<span class="open">*</span></span>
             <select :value="data.repairlog[editingId].product_id" @change="setEquipForLog(editingId, $event.target.value)">
               <option value="">選択してください</option>
               <option v-for="(product, pid) in data.products" :key="pid" :value="pid">{{ pid }} ({{ product.name }})</option>
             </select>
           </p>
-          <p><span class="rowtitle">修理者</span>
+          <p><span class="rowtitle">修理者<span class="open">*</span></span>
             <select v-model.number="data.repairlog[editingId].repairer">
               <option value="">選択してください</option>
               <option v-for="m in repairerOptions" :key="m.val" :value="m.val">{{ m.label }}</option>
             </select>
           </p>
-          <p><span class="rowtitle">修理代</span><input type="number" v-model.number="data.repairlog[editingId].cost">円</p>
-          <p><span class="rowtitle">修理内容</span> <textarea class="memory" v-model="data.repairlog[editingId].about"></textarea></p>
-          <p><span class="rowtitle">公開用情報</span> <textarea class="memory" v-model="data.repairlog[editingId].public_info"></textarea></p>
-          <p><span class="rowtitle">写真</span>　<button @click="addPictureFor(editingId)">＋新規追加</button></p>
+          <p><span class="rowtitle">修理代<span class="open">*</span></span><input type="number" v-model.number="data.repairlog[editingId].cost">円</p>
+          <p><span class="rowtitle">修理内容<span class="open">*</span></span> <textarea class="memory" v-model="data.repairlog[editingId].about"></textarea></p>
+          <!-- <p><span class="rowtitle">公開用情報</span> <textarea class="memory" v-model="data.repairlog[editingId].public_info"></textarea></p> -->
+          <p><span class="rowtitle">写真<span class="open">*</span></span>　<button @click="addPictureFor(editingId)">＋新規追加</button></p>
           <ul>
             <li v-for="pid in data.repairlog[editingId].picture_ids" :key="pid">
               <a href="#" @click.prevent="$emit('jump-picture', pid)">
@@ -221,12 +221,13 @@ export default {
             </li>
           </ul>
           <!-- <p><span class="rowtitle">作成日時</span> <input type="text" v-model="data.repairlog[editingId].created_at"></p> -->
-
-          <section id="repairlog-thirdhanders">
-            <p>入力済みのデータを、<a href="https://thirdhanders.hinodeya-ecolife.com/">Third Handers</a>から、公開することができます。Third Handersサイトにログインして、コピーしたデータを貼り付けてください。</p>
-            <button type="button" @click="copyToThirdHanders">コピーする</button>
-          </section>
         </div>
+
+        <section class="outershare">
+          <p>修理ありがとうございます。<span class="open">*</span> がついた入力済みのデータを、<a href="https://thirdhanders.hinodeya-ecolife.com/">Third Handersサイト</a>から公開することができます。
+          「コピーする」ボタンを押し、Third Handersサイトにログインして、貼り付けてください。</p>
+          <button type="button" @click="copyToThirdHanders">コピーする</button>
+        </section>
       </template>
     </section>
   `,

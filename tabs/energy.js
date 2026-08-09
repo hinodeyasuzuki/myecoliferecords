@@ -80,7 +80,7 @@ export default {
         </tbody>
       </table>
 
-      <section id="energy-graph">
+      <section class="outershare">
         <p>入力済みのデータを使って、別ページでグラフ表示できます。</p>
         <button type="button" @click="openEnergyGraph">表示する</button>
       </section>

@@ -191,7 +191,7 @@ export default {
           </template>
         </div>
       </template>
-      <section id="energy-graph">
+      <section class="outershare">
         <p>入力済みのデータを使って、別ページで家庭の省エネ診断ができます。</p>
         <button type="button" @click="openDiagnosis">表示する</button>
       </section>

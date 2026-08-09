@@ -264,7 +264,7 @@ export default {
             name: item.name,
             method: item.method,
             purchaseyear: item.purchaseyear,
-            public_info: item.public_info,
+            memory: item.memory,
             picture_ids: pictureIds,
           },
         },
@@ -282,10 +282,9 @@ export default {
   template: `
     <section id="products-tab">
       <h2>機器</h2>
-      <p v-if="selectId">選択中の機器分類: {{ getEquipTitle(selectId) }} <input type="button" value="クリア（すべて表示）" @click="selectId = null;equipShow = false"></p>
       <p v-if="!equipShow">
         <span class="guide-toggle" @click="equipShow = true">▼機器分類を表示</span>　
-        <span style="color:var(--muted);">※機器分類を表示すると、製品の種類で絞り込むことができます。</span>
+        <span style="color:var(--muted);">※約340種類の機器分類が選べます。</span>
       </p>
       <p v-if="equipShow"><span class="guide-toggle" @click="equipShow = false">▲機器分類を非表示</span></p>
       
@@ -334,6 +333,8 @@ export default {
         </div>
       </template>
 
+      <p v-if="selectId">選択中の機器分類: {{ getEquipTitle(selectId) }} <input type="button" value="選択クリア（すべて表示）" @click="selectId = null;equipShow = false"></p>
+
       <template v-if="editingId === null">
         <p>中古数：{{ sortedProductEntries.filter(([, item]) => item.method === 3 || item.method === 4 || item.method === 5).length }}件
         　／　愛用数：{{ sortedProductEntries.filter(([, item]) => item.favorite).length }}件
@@ -367,7 +368,9 @@ export default {
             </tr>
           </tbody>
         </table>
-        <button @click="addProductAndEdit">＋機器を追加</button>
+        <button v-if="selectId" @click="addProductAndEdit">＋{{ getEquipTitle(selectId) }} を追加</button>
+        <button v-else @click="addProductAndEdit">＋分類を指定せず機器を追加</button>
+        
       </template>
       <template v-else>
         <div v-if="data.products[editingId]" style="border:1px solid var(--border); padding:12px; margin-bottom:12px; border-radius:6px;">
@@ -433,14 +436,15 @@ export default {
               <button @click.stop="removePictureEntry(pid)">削除</button>
             </li>
           </ul>
-          <p><span class="rowtitle">思い出</span> <textarea class="memory" v-model="data.products[editingId].memory"></textarea></p>
-          <p><span class="rowtitle">公開用情報<span class="open">*</span></span> <textarea class="memory" v-model="data.products[editingId].public_info"></textarea></p>
+          <p><span class="rowtitle">思い出<span class="open">*</span></span> <textarea class="memory" v-model="data.products[editingId].memory"></textarea></p>
+          <!-- <p><span class="rowtitle">公開用情報<span class="open">*</span></span> <textarea class="memory" v-model="data.products[editingId].public_info"></textarea></p> -->
           <p><span class="rowtitle">使用終了年</span> <input type="number" v-model.number="data.products[editingId].enduseyear">年</p>
         </div>
       </template>
 
-      <section id="energy-graph" v-if="ecouseFlag">
-        <p><span class="open">*</span> がついた入力済みのデータを、<a href="https://thirdhanders.hinodeya-ecolife.com/">Third Handers</a>から、公開することができます。Third Handersサイトにログインして、コピーしたデータを貼り付けてください。</p>
+      <section class="outershare" v-if="ecouseFlag">
+        <p>{{methodOptions[data.products[editingId].method-1].label}} ありがとうございます。<span class="open">*</span> がついた入力済みのデータを、<a href="https://thirdhanders.hinodeya-ecolife.com/">Third Handersサイト</a>から公開することができます。
+        「コピーする」ボタンを押し、Third Handersサイトにログインして、貼り付けてください。</p>
         <button type="button" @click="copyToThirdHanders">コピーする</button>
       </section>
     </section>
