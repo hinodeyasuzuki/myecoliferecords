@@ -400,7 +400,7 @@ export default {
           <p><span class="rowtitle">修理履歴</span>　<button @click="addRepairlogFor(editingId)">＋新規追加</button></p>
           <ul>
             <li v-for="lid in data.products[editingId].repairlog_ids" :key="lid">
-              <a href="#" @click.prevent="$emit('jump-repairlog', lid)">{{ repairlogSummary(lid) }}</a>
+              <a href="#" @click.prevent="$emit('jump-repairlog', lid)">{{ repairlogSummary(lid).substring(0, 55) }}</a>
               <!-- <button @click.stop="removeRepairlogEntry(lid)">削除</button> -->
             </li>
           </ul>
