@@ -431,7 +431,7 @@ div#modal-contents img {
 
 /* =========== smart phone ============ */
 
-@media only screen and (max-width: 600px) {
+@media only screen and (max-width: 800px) {
   #contents {
     padding: 0px;
     margin: 0px;
@@ -441,6 +441,7 @@ div#modal-contents img {
     min-width: initial;
   }
   div.graph, div.result, div.mesmenu, div.measure, div.leftmenu {
+    display: block;
     width: 100% !important;
   }
   .large {

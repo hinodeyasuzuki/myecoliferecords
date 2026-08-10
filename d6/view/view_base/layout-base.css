@@ -13,7 +13,7 @@ div.leftmenu {
 
 div.result {
   display: inline-block;
-  width: 53% !important;
+  width: 53%;
   min-width: 340px;
   vertical-align: top;
   background: #efe;
