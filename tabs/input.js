@@ -193,7 +193,7 @@ export default {
       </template>
       <section class="outershare">
         <p>入力済みのデータを使って、別ページで家庭の省エネ診断ができます。</p>
-        <button type="button" @click="openDiagnosis">表示する</button>
+        <button type="button" class="anotherpage" @click="openDiagnosis">表示する >></button>
       </section>
     </section>
   `,

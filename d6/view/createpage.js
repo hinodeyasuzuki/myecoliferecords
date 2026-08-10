@@ -35,6 +35,9 @@ var createInputPage = function (res) {
 
 	for (var c in res.group) {
 		//main menu
+		if( c=="easy01" || c=="action01" || c=="consEnergy" ) {
+			continue;
+		}
 		menu += "<li id='" + c + "' tabindex=0>" + res.group[c] + "</li>";
 
 		if (c != res.consName) {
@@ -809,9 +812,27 @@ var showMeasureTable = function (mesArray) {
 				mes.color +
 				";" +
 				mesbgcolor +
-				"'><a rel='leanModal' href='#leanModalDialog' onclick='showModal( " +
-				mes.mesID +
-				");'>" +
+				"'>"+
+
+				//dialog
+				// "<a rel='leanModal' href='#leanModalDialog' onclick='showModal( " +
+				// mes.mesID +
+				// ");'>" +
+				// mes.title +
+				// (mes.conssubID > 0
+				// 	? "(" +
+				// 	(mes.consmesTitlePrefix ? mes.consmesTitlePrefix : mes.conssubID) +
+				// 	")"
+				// 	: "") +
+				// (debugMode ? " " + mes.consconsName : "") +
+				// "</a>"+
+
+				//外部リンク
+				"<a href='https://ss.hinodeya-ecolife.com/ecoinfoai/practice.php?actionid=" + mes.mesdefID +
+				"&cost=" + mes.costChangeOriginal + 
+				"&co2=" + mes.co2ChangeOriginal + 
+				"&initialcost=" + (mes.priceNew ? mes.priceNew : 0) +
+				"'>" +
 				mes.title +
 				(mes.conssubID > 0
 					? "(" +
@@ -819,7 +840,10 @@ var showMeasureTable = function (mesArray) {
 					")"
 					: "") +
 				(debugMode ? " " + mes.consconsName : "") +
-				"</a></td>";
+				"</a>"+
+
+
+				"</td>";
 			// co2
 			ret +=
 				"<td class='right' style='" +

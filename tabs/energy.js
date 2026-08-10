@@ -48,6 +48,20 @@ export default {
     openEnergyGraph() {
       location.href = "./energy/";
     },
+    preMonth(ymKey) {
+      const { year, month } = parseYm(ymKey);
+      const date = new Date(year, month - 1, 1);
+      date.setMonth(date.getMonth() - 1);
+      this.year = date.getFullYear();
+      this.month = date.getMonth() + 1;
+    },
+    nextMonth(ymKey) {
+      const { year, month } = parseYm(ymKey);
+      const date = new Date(year, month - 1, 1);
+      date.setMonth(date.getMonth() + 1);
+      this.year = date.getFullYear();
+      this.month = date.getMonth() + 1;
+    },
   },
   template: `
     <section id="energy-table">
@@ -58,7 +72,9 @@ export default {
         </select>
         <select v-model.number="month">
           <option v-for="m in 12" :key="m" :value="m">{{ m }}月</option>
-        </select>
+        </select>　
+        <input type="button" value="＜前月" @click="preMonth(ym)">
+        <input type="button" value="翌月＞" @click="nextMonth(ym)">
         <!--<span style="color:var(--muted)">({{ ym }})</span>-->
       </p>
 
@@ -82,7 +98,7 @@ export default {
 
       <section class="outershare">
         <p>入力済みのデータを使って、別ページでグラフ表示できます。</p>
-        <button type="button" @click="openEnergyGraph">表示する</button>
+        <button type="button" class="anotherpage" @click="openEnergyGraph">表示する >></button>
       </section>
     </section>
   `,

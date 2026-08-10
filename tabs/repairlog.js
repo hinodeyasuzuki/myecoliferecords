@@ -208,7 +208,10 @@ export default {
             </select>
           </p>
           <p><span class="rowtitle">修理代<span class="open">*</span></span><input type="number" v-model.number="data.repairlog[editingId].cost">円</p>
-          <p><span class="rowtitle">修理内容<span class="open">*</span></span> <textarea class="memory" v-model="data.repairlog[editingId].about"></textarea></p>
+          <p><span class="rowtitle">修理内容<span class="open">*</span></span>
+            <textarea class="memory" v-model="data.repairlog[editingId].about"></textarea>
+          </p>
+          <p class="hint">ヒント：修理前の状態は？／修理の方法／用意した部品・道具／かかった時間／失敗・工夫／結果どうなりましたか？</p>
           <p><span class="rowtitle">写真<span class="open">*</span></span>　<button @click="addPictureFor(editingId)">＋新規追加</button></p>
           <ul>
             <li v-for="pid in data.repairlog[editingId].picture_ids" :key="pid">
