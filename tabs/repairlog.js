@@ -4,6 +4,12 @@ import { productNameFor, dateLabel, sortRepairlogEntries } from "../lib/repairlo
 import { pictureSummary } from "../lib/pictureSummary.js";
 import { deletePictureBlob, getPictureBlob } from "../lib/pictureStore.js";
 import { pictureBlobs, ensurePictureBlobLoaded, clearPictureBlobCache } from "../lib/pictureBlobCache.js";
+import {
+  buildEquipsById,
+  level1Options as equipLevel1Options,
+  resolveEquipSelection,
+  getEquipIcon,
+} from "../lib/equipTree.js";
 
 const REPAIRER_OPTIONS = [
   { val: 1, label: "自分" },
@@ -13,7 +19,7 @@ const REPAIRER_OPTIONS = [
 ];
 
 export default {
-  props: ["data", "highlightId"],
+  props: ["data", "master", "highlightId"],
   emits: ["consumed-highlight", "jump-picture", "jump-product"],
   data() {
     return {
@@ -22,6 +28,8 @@ export default {
       sortKey: "date",
       sortDir: "desc",
       cameFromProduct: false,
+      selectId: "",
+      smLevel1Id: "",
     };
   },
   created() {
@@ -32,13 +40,17 @@ export default {
     }
   },
   computed: {
+    equipsById() {
+      return buildEquipsById(this.master.equips);
+    },
+    level1Options() {
+      return equipLevel1Options(this.master.equips);
+    },
     sortedRepairlogEntries() {
-      return sortRepairlogEntries(
-        Object.entries(this.data.repairlog),
-        this.sortKey,
-        this.sortDir,
-        this.data.products
-      );
+      const entries = this.selectId
+        ? Object.entries(this.data.repairlog).filter(([, log]) => this.logMatchesCategory(log, this.selectId))
+        : Object.entries(this.data.repairlog);
+      return sortRepairlogEntries(entries, this.sortKey, this.sortDir, this.data.products);
     },
   },
   methods: {
@@ -107,6 +119,24 @@ export default {
       ensurePictureBlobLoaded(id);
       return pictureBlobs[id] || "";
     },
+    logMatchesCategory(log, categoryId) {
+      const product = this.data.products[log.product_id];
+      if (!product) return false;
+      const selection = resolveEquipSelection(this.equipsById, product.equip_id);
+      return (
+        product.equip_id === categoryId ||
+        selection.level1Id === categoryId ||
+        selection.level2Id === categoryId
+      );
+    },
+    smSelectLevel1(id) {
+      this.smLevel1Id = id;
+      this.selectId = id;
+      this.editingId = null;
+    },
+    getEquipIcon(id) {
+      return getEquipIcon(id);
+    },
     async copyToThirdHanders() {
       const log = this.data.repairlog[this.editingId];
       if (!log) return;
@@ -158,6 +188,14 @@ export default {
   template: `
     <section id="repairlog-tab">
       <h2>修理履歴</h2>
+
+      <div class="category">
+        <button @click="selectId = '';smLevel1Id='';" :class="{highlighted: !smLevel1Id}">📋 すべて</button>
+        <button v-for="eq1 in level1Options" :key="eq1.id" @click="smSelectLevel1(eq1.id)" :class="{highlighted: smLevel1Id == eq1.id}">
+          {{ getEquipIcon(eq1.id) }} {{ eq1.title }}
+        </button>
+      </div>
+
       <template v-if="editingId === null">
         <table>
           <thead>
