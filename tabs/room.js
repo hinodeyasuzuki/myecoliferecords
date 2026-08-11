@@ -35,13 +35,15 @@ export default {
   template: `
     <section id="room-tab">
       <h2>部屋</h2>
-      <input type="button" value="部屋を編集する" v-if="!modeEdit" @click="modeEdit = true">
-      <p v-if="!modeEdit && !isNodata" style="color:var(--muted);">※自宅の部屋の呼び名や広さを設定できます。</p>
-      <input type="button" value="編集を終了する" v-if="modeEdit && !isNodata" @click="modeEdit = false">
-      <p v-if="modeEdit" style="color:var(--muted);">
-      ※部屋は、居室だけでなく、廊下や階段なども記載してください。呼び方は自由です。<br/>
+
+      <p>※機器が置いてある場所を設定できます。<br />
+      <span v-if="modeEdit">※部屋は、居室だけでなく、廊下や階段なども記載してください。呼び方は自由です。</span><br/>
       <span v-if="data.room && Object.keys(data.room).length">※行き来できる部屋は、CtrlキーやShiftキーを押しながら複数選択・選択解除できます。</span>
       </p>
+
+      <input type="button" value="部屋を編集する" v-if="!modeEdit" @click="modeEdit = true">
+      <input type="button" value="編集を終了する" v-if="modeEdit && !isNodata" @click="modeEdit = false">
+
       <table v-if="!modeEdit" style="margin-top:12px; border-collapse:collapse; width:100%;">
         <thead><tr><th>ID</th><th>呼び名</th><th>広さ(畳)</th><th>行き来できる部屋</th></tr></thead>
         <tbody>

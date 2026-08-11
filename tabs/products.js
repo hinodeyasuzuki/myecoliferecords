@@ -289,6 +289,9 @@ export default {
   template: `
     <section id="products-tab">
       <h2>機器</h2>
+
+      <p>※分類を選び、中古で買った機器などを記録できます。</p>
+
       <div class="category">
         <button @click="selectId = null;smLevel1Id='';smLevel2Id='';equipShow=true;">📋 すべて</button>
         <button v-for="eq1 in level1Options" :key="eq1.id" @click="smSelectLevel1(eq1.id);equipShow=true;" :class="{highlighted: smLevel1Id == eq1.id}">
@@ -312,7 +315,7 @@ export default {
             </tr>
           </tbody>
         </table>
-        <span class="up" @click="equipShow = false;">▲表示を消す</span>
+        <span class="up" @click="equipShow = false;">▲分類表示を消す</span>
       </div>
 
       <p v-if="selectId && !equipShow">選択中の機器分類: {{ getEquipTitle(selectId) }} </p>

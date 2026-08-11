@@ -189,6 +189,8 @@ export default {
     <section id="repairlog-tab">
       <h2>修理履歴</h2>
 
+      <p>※修理の履歴を記録できます。機器を登録した上で、修理を記録してください。</p>
+
       <template v-if="editingId === null">
         <div class="category">
           <button @click="selectId = '';smLevel1Id='';" :class="{highlighted: !smLevel1Id}">📋 すべて</button>
@@ -216,7 +218,6 @@ export default {
           </tbody>
         </table>
         <!-- <button @click="addLog">＋修理履歴を追加</button> -->
-        <p>※修理履歴を追加する場合は、まず修理した機器を登録してください。</p>
       </template>
       <template v-else>
         <div v-if="data.repairlog[editingId]" style="border:1px solid var(--border); padding:12px; margin-bottom:12px; border-radius:6px;">

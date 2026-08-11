@@ -105,6 +105,7 @@ export default {
   template: `
     <section id="picture-tab">
       <h2>写真</h2>
+      <p>※機器や修理の写真を記録できます。写真を追加する場合は、機器や修理履歴から登録してください。</p>
       <template v-if="editingId === null">
         <nav class="tabs">
           <button :class="{active: linkTab === 'products'}" @click="linkTab = 'products'">機器写真</button>
@@ -124,7 +125,6 @@ export default {
           </div>
         </div>
         <!-- <button @click="addPictureAndEdit">＋写真を追加</button> -->
-        <p>※写真を追加する場合は、機器や修理履歴から登録してください。</p>
       </template>
       <template v-else>
         <div v-if="data.picture[editingId]" class="picture-card">

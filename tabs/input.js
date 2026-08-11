@@ -128,7 +128,7 @@ export default {
     <section id="input-tab">
       <h2>診断項目</h2>
       <!-- <p><input type="text" v-model="search" placeholder="項目を検索"></p> -->
-      <p style="color:var(--muted);">※自宅の利用状況を多く入力するほど、精度の高い診断が計算されます。</p>
+      <p style="color:var(--muted);">※入力するほど、効果的な省エネ対策を提案できます。</p>
       <nav class="tabs">
         <button
           v-for="t in consTabs"
@@ -192,7 +192,7 @@ export default {
         </div>
       </template>
       <section class="outershare">
-        <p>入力済みのデータを使って、別ページで家庭の省エネ診断ができます。</p>
+        <p>※入力済みのデータを使って、別ページで家庭の省エネ診断ができます。</p>
         <button type="button" class="anotherpage" @click="openDiagnosis">表示する >></button>
       </section>
     </section>

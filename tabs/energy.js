@@ -97,7 +97,7 @@ export default {
       </table>
 
       <section class="outershare">
-        <p>入力済みのデータを使って、別ページでグラフ表示できます。</p>
+        <p>※入力済みのデータを使って、別ページでグラフ表示できます。</p>
         <button type="button" class="anotherpage" @click="openEnergyGraph">表示する >></button>
       </section>
     </section>
