@@ -37,6 +37,7 @@
     <tab-repairlog
       v-if="currentTab === 'repairlog'"
       :data="data"
+      :master="master"
       :highlight-id="highlight.repairlog"
       @consumed-highlight="clearRepairlogHighlight"
       @jump-picture="jumpToPicture"
