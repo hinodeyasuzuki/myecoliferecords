@@ -231,6 +231,10 @@ export default {
     updateIsNarrow() {
       this.isNarrow = window.innerWidth <= 600;
     },
+    roomNameFor(roomId) {
+      const room = this.data.room[roomId];
+      return room ? room.name : "";
+    },
     getEquipTitle(equipId) {
       const equip = this.equipsById[equipId];
       return equip ? equip.title : "";
@@ -386,11 +390,13 @@ export default {
 
           <p><span class="rowtitle">愛用品</span> <input type="checkbox" v-model="data.products[editingId].favorite"></p>
           <p v-if="data.products[editingId].method == 3 || data.products[editingId].method == 4"><span class="rowtitle">製造年</span> <input type="number" v-model.number="data.products[editingId].manufactureyear"></p>
-          <p v-if="data.showRoom"><span class="rowtitle">部屋</span>
-            <select v-model="data.products[editingId].room_id">
+          <p><span class="rowtitle">部屋</span>
+            <select v-if="data.showRoom" v-model="data.products[editingId].room_id">
               <option value="">選択してください</option>
               <option v-for="(room, rid) in data.room" :key="rid" :value="rid">{{ room.name }} ({{ rid }})</option>
             </select>
+            <span v-else-if="data.products[editingId].room_id">{{ roomNameFor(data.products[editingId].room_id) }}</span>
+            <span v-else style="color:var(--muted);">「使い方」タブで、部屋名の入力ができるモードに設定できます。</span>
           </p>
           <template v-if="energyFlag == 1">
             <p><span class="rowtitle">消費電力</span> <input type="number" v-model.number="data.products[editingId].watt">W</p>
