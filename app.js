@@ -15,7 +15,7 @@ export const STORAGE_KEY = "homeenergycodes.savedInput";
 export function emptyData() {
   return {
     input: {}, inputCounts: {}, room: {}, products: {}, energy: {},
-    energycost: {}, repairlog: {}, picture: {},
+    energycost: {}, repairlog: {}, picture: {}, showRoom: true,
   };
 }
 
@@ -108,6 +108,18 @@ const app = createApp({
     master.energycost = energycost;
     master.cons = cons;
     this.loading = false;
+  },
+  computed: {
+    visibleTabs() {
+      return this.tabs.filter((t) => t.id !== "room" || this.data.showRoom);
+    },
+  },
+  watch: {
+    "data.showRoom"(showRoom) {
+      if (!showRoom && this.currentTab === "room") {
+        this.currentTab = "top";
+      }
+    },
   },
   methods: {
     jumpToRepairlog(id) {

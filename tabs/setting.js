@@ -1,4 +1,5 @@
 export default {
+  props: ["data"],
   emits: ["export-json", "import-json"],
   methods: {
     onFileChange(event) {
@@ -30,6 +31,17 @@ export default {
             </label>
           </li>
         </ul>
+      </div>
+
+      <h3>オプション設定</h3>
+      <div class="rowtitlepadding">
+        <p>
+          <label>
+            <input type="checkbox" v-model="data.showRoom">
+            部屋の記録を使う
+          </label>
+        </p>
+        <p style="color:var(--muted);">※OFFにすると、「部屋」タブと、機器の登録・編集画面の「部屋」の選択欄が表示されなくなります。すでに入力済みの部屋の記録は消えません。</p>
       </div>
 
       <h3>記入項目について</h3>

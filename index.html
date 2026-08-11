@@ -14,7 +14,7 @@
   <template v-else>
     <nav class="tabs">
       <button
-        v-for="t in tabs"
+        v-for="t in visibleTabs"
         :key="t.id"
         :class="{active: currentTab === t.id}"
         @click="currentTab = t.id"
@@ -51,6 +51,7 @@
     ></tab-picture>
     <tab-setting
       v-if="currentTab === 'setting'"
+      :data="data"
       @export-json="exportJson"
       @import-json="importJson"
     ></tab-setting>

@@ -295,7 +295,7 @@ export default {
       <div v-if="smLevel1Id && equipShow">
         <table class="equip-table">
           <thead>
-            <tr><th>中分類</th><th>小分類　<span class="up" @click="equipShow = false;">▲表示を消す</span></th></tr>
+            <tr><th>中分類</th><th>小分類</th></tr>
           </thead>
           <tbody>
             <tr v-for="eq2 in level2Options(smLevel1Id)" :key="eq2.id">
@@ -386,7 +386,7 @@ export default {
 
           <p><span class="rowtitle">愛用品</span> <input type="checkbox" v-model="data.products[editingId].favorite"></p>
           <p v-if="data.products[editingId].method == 3 || data.products[editingId].method == 4"><span class="rowtitle">製造年</span> <input type="number" v-model.number="data.products[editingId].manufactureyear"></p>
-          <p><span class="rowtitle">部屋</span>
+          <p v-if="data.showRoom"><span class="rowtitle">部屋</span>
             <select v-model="data.products[editingId].room_id">
               <option value="">選択してください</option>
               <option v-for="(room, rid) in data.room" :key="rid" :value="rid">{{ room.name }} ({{ rid }})</option>
@@ -400,7 +400,7 @@ export default {
           <p><span class="rowtitle">修理履歴</span>　<button @click="addRepairlogFor(editingId)">＋新規追加</button></p>
           <ul>
             <li v-for="lid in data.products[editingId].repairlog_ids" :key="lid">
-              <a href="#" @click.prevent="$emit('jump-repairlog', lid)">{{ repairlogSummary(lid).substring(0, 55) }}</a>
+              <a href="#" @click.prevent="$emit('jump-repairlog', lid)">{{ repairlogSummary(lid).substring(0, 50) + (repairlogSummary(lid).length > 50 ? "..." : "") }}</a>
               <!-- <button @click.stop="removeRepairlogEntry(lid)">削除</button> -->
             </li>
           </ul>
