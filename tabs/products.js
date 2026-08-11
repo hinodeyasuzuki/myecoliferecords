@@ -9,6 +9,7 @@ import {
   getEquipIcon,
 } from "../lib/equipTree.js";
 import { modelName, methodLabel, sortProductEntries } from "../lib/productSort.js";
+import { dateSortValue } from "../lib/repairlogSort.js";
 import { pictureSummary } from "../lib/pictureSummary.js";
 import { deletePictureBlob, getPictureBlob } from "../lib/pictureStore.js";
 import { pictureBlobs, ensurePictureBlobLoaded, clearPictureBlobCache } from "../lib/pictureBlobCache.js";
@@ -91,6 +92,18 @@ export default {
     }
   },
   methods: {
+    sortedRepairlogIds(ids) {
+      return [...ids].sort((a, b) => {
+        const logA = this.data.repairlog[a];
+        const logB = this.data.repairlog[b];
+        const valueA = logA ? dateSortValue(logA) : null;
+        const valueB = logB ? dateSortValue(logB) : null;
+        if (valueA === null && valueB === null) return 0;
+        if (valueA === null) return 1;
+        if (valueB === null) return -1;
+        return valueA - valueB;
+      });
+    },
     repairlogSummary(lid) {
       const log = this.data.repairlog[lid];
       if (!log) return lid + " (削除済み)";
@@ -408,7 +421,7 @@ export default {
           </template>
           <p><span class="rowtitle">修理履歴</span>　<button @click="addRepairlogFor(editingId)">＋新規追加</button></p>
           <ul>
-            <li v-for="lid in data.products[editingId].repairlog_ids" :key="lid">
+            <li v-for="lid in sortedRepairlogIds(data.products[editingId].repairlog_ids)" :key="lid">
               <a href="#" @click.prevent="$emit('jump-repairlog', lid)">{{ repairlogSummary(lid).substring(0, 50) + (repairlogSummary(lid).length > 50 ? "..." : "") }}</a>
               <!-- <button @click.stop="removeRepairlogEntry(lid)">削除</button> -->
             </li>
