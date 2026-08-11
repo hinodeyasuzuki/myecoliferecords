@@ -189,14 +189,14 @@ export default {
     <section id="repairlog-tab">
       <h2>修理履歴</h2>
 
-      <div class="category">
-        <button @click="selectId = '';smLevel1Id='';" :class="{highlighted: !smLevel1Id}">📋 すべて</button>
-        <button v-for="eq1 in level1Options" :key="eq1.id" @click="smSelectLevel1(eq1.id)" :class="{highlighted: smLevel1Id == eq1.id}">
-          {{ getEquipIcon(eq1.id) }} {{ eq1.title }}
-        </button>
-      </div>
-
       <template v-if="editingId === null">
+        <div class="category">
+          <button @click="selectId = '';smLevel1Id='';" :class="{highlighted: !smLevel1Id}">📋 すべて</button>
+          <button v-for="eq1 in level1Options" :key="eq1.id" @click="smSelectLevel1(eq1.id)" :class="{highlighted: smLevel1Id == eq1.id}">
+            {{ getEquipIcon(eq1.id) }} {{ eq1.title }}
+          </button>
+        </div>
+
         <table>
           <thead>
             <tr>
@@ -230,7 +230,7 @@ export default {
             <input type="number" v-model.number="data.repairlog[editingId].month">月 
             <input type="number" v-model.number="data.repairlog[editingId].day">日
           </p>
-          <p><span class="rowtitle">機器</span> {{ productNameForLog(data.repairlog[editingId]) }}</p>
+          <p><span class="rowtitle">機器<span class="open">*</span></span> {{ productNameForLog(data.repairlog[editingId]) }}</p>
           <p><span class="rowtitle">修理者<span class="open">*</span></span>
             <select v-model.number="data.repairlog[editingId].repairer">
               <option value="">選択してください</option>
