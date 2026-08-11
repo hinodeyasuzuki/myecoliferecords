@@ -212,7 +212,7 @@ export default {
             <tr v-for="[id, log] in sortedRepairlogEntries" :key="id" style="vertical-align:top;">
               <td>{{ dateLabelFor(log) }}</td>
               <td>{{ productNameForLog(log) }}</td>
-              <td style="max-height:2em;">{{ log.about || "(未入力)" }}</td>
+              <td style="max-height:2em;">{{ (log.about.substring(0, 100) + (log.about.length > 100 ? "..." : "")) || "(未入力)" }}</td>
               <td><button @click="startEdit(id)" style="white-space:nowrap;">編集</button></td>
             </tr>
           </tbody>
@@ -231,7 +231,9 @@ export default {
             <input type="number" v-model.number="data.repairlog[editingId].month">月 
             <input type="number" v-model.number="data.repairlog[editingId].day">日
           </p>
-          <p><span class="rowtitle">機器<span class="open">*</span></span> {{ productNameForLog(data.repairlog[editingId]) }}</p>
+          <p><span class="rowtitle">機器<span class="open">*</span></span> {{ productNameForLog(data.repairlog[editingId]) }}
+            <button v-if="data.products[data.repairlog[editingId].product_id]" @click="$emit('jump-product', data.repairlog[editingId].product_id)">詳細</button>
+          </p>
           <p><span class="rowtitle">修理者<span class="open">*</span></span>
             <select v-model.number="data.repairlog[editingId].repairer">
               <option value="">選択してください</option>
