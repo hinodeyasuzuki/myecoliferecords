@@ -54,6 +54,14 @@ export default {
       <p><strong>診断項目</strong>：家庭のエコライフに関する生活状況を網羅的に記録します。この記録を使って、省エネ改善のための効果を計算した診断結果が得られます。</p>
       </div>
 
+      <h3>連携ツール</h3>
+      <div class="rowtitlepadding">
+        <p><strong>省エネ診断</strong>：（内蔵）別ページで家庭の省エネ診断ができます。</p>
+        <p><strong>光熱グラフ</strong>：（内蔵）別ページでグラフ表示できます。</p>
+        <p><strong><a href="https://ss.hinodeya-ecolife.com/ecoinfoai/">家庭の省エネ対策情報</a></strong>：省エネ診断で提案される対策の詳細情報を表示します</p>
+        <p><strong><a href="https://thirdhanders.hinodeya-ecolife.com/">Third Handers</a></strong>：中古品・修理などの公開・シェアができます。</p>
+      </div>
+
     </section>
   `,
 };
