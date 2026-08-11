@@ -15,7 +15,7 @@ export const STORAGE_KEY = "homeenergycodes.savedInput";
 export function emptyData() {
   return {
     input: {}, inputCounts: {}, room: {}, products: {}, energy: {},
-    energycost: {}, repairlog: {}, picture: {}, showRoom: true,
+    energycost: {}, repairlog: {}, picture: {}, showRoom: false,
   };
 }
 
