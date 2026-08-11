@@ -97,7 +97,7 @@ const app = createApp({
   async mounted() {
     const [input, equips, energy, energycost, cons] = await Promise.all([
       fetchJson(`${API_BASE}/input.json`),
-      fetchJson(`${API_BASE}/equip.json`),
+      fetchJson(`${API_BASE}/equips.json`),
       fetchJson(`${API_BASE}/energy.json`),
       fetchJson(`${API_BASE}/energycost.json`),
       fetchJson(`${API_BASE}/cons.json`),

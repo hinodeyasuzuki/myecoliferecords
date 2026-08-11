@@ -263,9 +263,8 @@
     margin-right: 6px;
   }
   .picture-thumb-xs {
-    display: inline-block;
-    max-width: 32px;
-    max-height: 32px;
+    max-width: 64px;
+    max-height: 64px;
     vertical-align: middle;
     margin-right: 6px;
   }

@@ -322,8 +322,8 @@ export default {
             <tr class="table-sortable">
               <th @click="setSort('name')">呼び名 <span v-if="sortKey === 'name'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
               <th @click="setSort('model')">製品分類 <span v-if="sortKey === 'model'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
-              <th @click="setSort('purchaseyear')">購入年 <span v-if="sortKey === 'purchaseyear'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
-              <th @click="setSort('method')">調達方法 <span v-if="sortKey === 'method'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
+              <th @click="setSort('purchaseyear')">入手年 <span v-if="sortKey === 'purchaseyear'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
+              <th @click="setSort('method')">入手方法 <span v-if="sortKey === 'method'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
               <th @click="setSort('repaired')">修理 <span v-if="sortKey === 'repaired'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
               <th @click="setSort('favorite')">愛用品 <span v-if="sortKey === 'favorite'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
               <th @click="setSort('enduseyear')" class="hide_sm">終了年 <span v-if="sortKey === 'enduseyear'">{{ sortDir === 'asc' ? '▲' : '▼' }}</span></th>
@@ -333,7 +333,7 @@ export default {
           <tbody>
             <tr v-for="[id, item] in sortedProductEntries" :key="id" :class="item.enduseyear ? 'enduse' : ''">
               <td>
-                <img v-if="item.picture_ids.length && pictureSrc(item.picture_ids[0])" :src="pictureSrc(item.picture_ids[0])" class="picture-thumb-xs">
+                <img v-if="item.picture_ids.length && pictureSrc(item.picture_ids[0])" :src="pictureSrc(item.picture_ids[0])" class="picture-thumb-xs" style="float:left;">
                 {{ item.name || "(未入力)" }}
               </td>
               <td>{{ modelNameFor(item) }}</td>
@@ -369,12 +369,12 @@ export default {
               <option v-for="eq in level3Options(equipSelection(data.products[editingId]).level2Id)" :key="eq.id" :value="eq.id">{{ eq.title }}</option>
             </select>
           </p>
-          <p><span class="rowtitle">購入年月<span class="open">*</span></span> <input type="number" v-model.number="data.products[editingId].purchaseyear">年
+          <p><span class="rowtitle">入手年月<span class="open">*</span></span> <input type="number" v-model.number="data.products[editingId].purchaseyear">年
             <select v-model.number="data.products[editingId].purchasemonth">
               <option v-for="m in monthOptions" :key="m.val" :value="m.val">{{ m.label }}</option>
             </select>
           </p>
-          <p><span class="rowtitle">調達方法<span class="open">*</span></span>
+          <p><span class="rowtitle">入手方法<span class="open">*</span></span>
             <select v-model.number="data.products[editingId].method">
               <option value="">選択してください</option>
               <option v-for="m in methodOptions" :key="m.val" :value="m.val">{{ m.label }}</option>
