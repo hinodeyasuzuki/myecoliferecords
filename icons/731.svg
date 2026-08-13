@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="chip" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#8FA3B8"/>
+      <stop offset="1" stop-color="#455A72"/>
+    </linearGradient>
+    <radialGradient id="hl" cx="30%" cy="20%" r="70%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="clear" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#eef6f8" stop-opacity="0.9"/>
+      <stop offset="1" stop-color="#c3d8de" stop-opacity="0.75"/>
+    </linearGradient>
+    <linearGradient id="lid" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f5f6"/>
+      <stop offset="1" stop-color="#c2c6cc"/>
+    </linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.4" flood-color="#233040" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#chip)" stroke="#233040" stroke-width="1.5"/>
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#hl)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="15" y="16" width="34" height="8" rx="2" fill="url(#lid)" stroke="#3a3d42" stroke-width="1.2"/>
+    <rect x="27" y="17.5" width="10" height="2" rx="1" fill="#8a8f98"/>
+    <path d="M17 24 h30 l-2 24 a2 2 0 0 1 -2 2 h-22 a2 2 0 0 1 -2 -2 z" fill="url(#clear)" stroke="#3a3d42" stroke-width="1.2"/>
+    <line x1="18.5" y1="30" x2="45.5" y2="30" stroke="#ffffff" stroke-opacity="0.6" stroke-width="1"/>
+    <line x1="19.5" y1="38" x2="44.5" y2="38" stroke="#ffffff" stroke-opacity="0.5" stroke-width="1"/>
+    <rect x="26" y="26" width="4" height="4" rx="1" fill="#455A72" opacity="0.6"/>
+    <rect x="34" y="40" width="4" height="4" rx="1" fill="#455A72" opacity="0.6"/>
+  </g>
+</svg>

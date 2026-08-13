@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="chip" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#C97B8A"/>
+      <stop offset="1" stop-color="#7A2E3F"/>
+    </linearGradient>
+    <radialGradient id="hl" cx="30%" cy="20%" r="70%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="wick" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e0b478"/>
+      <stop offset="1" stop-color="#a9713c"/>
+    </linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.4" flood-color="#421a23" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#chip)" stroke="#421a23" stroke-width="1.5"/>
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#hl)"/>
+
+  <g filter="url(#shadow)">
+    <path d="M15 26 h34 l-4 26 a3 3 0 0 1 -3 2.6 h-20 a3 3 0 0 1 -3 -2.6 z" fill="url(#wick)" stroke="#4a3320" stroke-width="1.3"/>
+    <path d="M18 30 v20 M24 29 v22 M32 29 v23 M40 29 v22 M46 30 v20" stroke="#4a3320" stroke-width="0.9" opacity="0.7"/>
+    <path d="M15 32 h34 M16.5 40 h31 M18 48 h28" stroke="#4a3320" stroke-width="0.9" opacity="0.7"/>
+    <path d="M19 26 q-4 -12 4 -16" fill="none" stroke="#4a3320" stroke-width="1.3" stroke-linecap="round"/>
+    <path d="M45 26 q4 -12 -4 -16" fill="none" stroke="#4a3320" stroke-width="1.3" stroke-linecap="round"/>
+    <ellipse cx="32" cy="26" rx="17" ry="3" fill="none" stroke="#4a3320" stroke-width="1.2"/>
+  </g>
+</svg>

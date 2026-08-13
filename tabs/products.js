@@ -298,6 +298,10 @@ export default {
         alert("コピーに失敗しました");
       }
     },
+    linkToRepair() {
+      const url = `https://ss.hinodeya-ecolife.com/repairinfo/equipment.php?equipcode=${this.selectId}`;
+      window.open(url);
+    }
   },
   template: `
     <section id="products-tab">
@@ -331,7 +335,10 @@ export default {
         <span class="up" @click="equipShow = false;">▲分類表示を消す</span>
       </div>
 
-      <p v-if="selectId && !equipShow">選択中の機器分類: {{ getEquipTitle(selectId) }} </p>
+      <p v-if="selectId && !equipShow" class="selected-category">
+        選択中の分類:  <img :src="'./icons/' + selectId + '.svg'" alt="" class="ms-1" style="width: 3em; height: 3em;position:relative;top:1em;">
+        {{ getEquipTitle(selectId) }} 
+      </p>
 
       <template v-if="editingId === null">
         <p>中古数：{{ sortedProductEntries.filter(([, item]) => item.method === 3 || item.method === 4 || item.method === 5).length }}件
@@ -369,7 +376,13 @@ export default {
         <button v-if="selectId" @click="addProductAndEdit">＋{{ getEquipTitle(selectId) }} を追加</button>
         <button v-else @click="addProductAndEdit">＋分類を指定せず機器を追加</button>
         
+        <section class="outershare" v-if="selectId">
+          <p>家庭の機器修理方法サイトから、{{ getEquipTitle(selectId) }} の修理の概要を表示することができます。</p>
+          <button type="button" @click="linkToRepair">修理方法を表示する</button>
+        </section>
+
       </template>
+
       <template v-else>
         <div v-if="data.products[editingId]" style="border:1px solid var(--border); padding:12px; margin-bottom:12px; border-radius:6px;">
           <p><button @click="backToList">← 一覧に戻る</button></p>

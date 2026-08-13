@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="chip" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#FFA07E"/>
+      <stop offset="1" stop-color="#C94E2C"/>
+    </linearGradient>
+    <radialGradient id="hl" cx="30%" cy="20%" r="70%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="body" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e8b06a"/>
+      <stop offset="1" stop-color="#a5713f"/>
+    </linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.4" flood-color="#5c2312" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#chip)" stroke="#5c2312" stroke-width="1.5"/>
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#hl)"/>
+
+  <g filter="url(#shadow)">
+    <path d="M14 42 q-2 -14 10 -18 q3 -2 5 1 q2 -3 5 -1 q2 -3 5 -1 q2 -2 4 1 q6 4 4 18 q-1 8 -9 10 h-14 q-8 -2 -10 -10 z" fill="url(#body)" stroke="#3a3d42" stroke-width="1.2"/>
+    <path d="M20 40 q6 -6 14 0" fill="none" stroke="#6b4326" stroke-width="1"/>
+    <circle cx="46" cy="18" r="6" fill="#f6f7f8" stroke="#3a3d42" stroke-width="1.1"/>
+    <path d="M42 15 q4 3 0 7" fill="none" stroke="#C94E2C" stroke-width="0.9"/>
+    <path d="M50 15 q-4 3 0 7" fill="none" stroke="#C94E2C" stroke-width="0.9"/>
+  </g>
+</svg>

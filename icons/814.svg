@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="chip" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#A3BC97"/>
+      <stop offset="1" stop-color="#566B4F"/>
+    </linearGradient>
+    <radialGradient id="hl" cx="30%" cy="20%" r="70%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="slacks" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#5c6b4f"/>
+      <stop offset="1" stop-color="#38432f"/>
+    </linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.4" flood-color="#28351f" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#chip)" stroke="#28351f" stroke-width="1.5"/>
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#hl)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="15" y="16" width="34" height="3" rx="1.5" fill="#c7ccd1" stroke="#3a3d42" stroke-width="1"/>
+    <path d="M17 19 q7 2 15 0 l1 32 h-9 l-1 -20 l-1 20 h-9 z" fill="url(#slacks)" stroke="#1c2216" stroke-width="1.2"/>
+    <path d="M32 19 q7 2 15 0 l-1 32 h-9 l-1 -20 l-1 20 h-9 z" fill="url(#slacks)" stroke="#1c2216" stroke-width="1.2"/>
+    <line x1="16" y1="19" x2="15.5" y2="15" stroke="#3a3d42" stroke-width="1"/>
+    <line x1="48" y1="19" x2="48.5" y2="15" stroke="#3a3d42" stroke-width="1"/>
+  </g>
+</svg>

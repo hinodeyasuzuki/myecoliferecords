@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="chip" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7FA8CC"/>
+      <stop offset="1" stop-color="#305674"/>
+    </linearGradient>
+    <radialGradient id="hl" cx="30%" cy="20%" r="70%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="tee" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e8f0f6"/>
+      <stop offset="1" stop-color="#a9c4d8"/>
+    </linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.4" flood-color="#1c3547" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#chip)" stroke="#1c3547" stroke-width="1.5"/>
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#hl)"/>
+
+  <g filter="url(#shadow)">
+    <path d="M17 18 l13 -6 q2 3 4 0 l13 6 l-3 10 l-6 -3 v2 h-12 v-2 l-6 3 z" fill="url(#tee)" stroke="#1c3547" stroke-width="1.2"/>
+    <path d="M21 27 h22 l-1 21 h-20 z" fill="url(#tee)" stroke="#1c3547" stroke-width="1.2"/>
+    <path d="M27 12 q5 4 10 0" fill="none" stroke="#1c3547" stroke-width="1"/>
+  </g>
+</svg>

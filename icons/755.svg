@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="chip" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#7FA8CC"/>
+      <stop offset="1" stop-color="#305674"/>
+    </linearGradient>
+    <radialGradient id="hl" cx="30%" cy="20%" r="70%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="sheet" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f4f8fb"/>
+      <stop offset="1" stop-color="#cfe0ea"/>
+    </linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.4" flood-color="#1c3547" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#chip)" stroke="#1c3547" stroke-width="1.5"/>
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#hl)"/>
+
+  <g filter="url(#shadow)">
+    <rect x="12" y="15" width="40" height="10" rx="1.5" fill="url(#sheet)" stroke="#305674" stroke-width="1.2"/>
+    <rect x="12" y="27" width="40" height="10" rx="1.5" fill="url(#sheet)" stroke="#305674" stroke-width="1.2"/>
+    <rect x="12" y="39" width="40" height="10" rx="1.5" fill="url(#sheet)" stroke="#305674" stroke-width="1.2"/>
+    <line x1="12" y1="20" x2="52" y2="20" stroke="#9dc0da" stroke-width="0.8"/>
+    <line x1="12" y1="32" x2="52" y2="32" stroke="#9dc0da" stroke-width="0.8"/>
+    <line x1="12" y1="44" x2="52" y2="44" stroke="#9dc0da" stroke-width="0.8"/>
+  </g>
+</svg>

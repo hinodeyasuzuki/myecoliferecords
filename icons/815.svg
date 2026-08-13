@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="chip" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B87BB9"/>
+      <stop offset="1" stop-color="#613461"/>
+    </linearGradient>
+    <radialGradient id="hl" cx="30%" cy="20%" r="70%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="coat" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#d8c7a3"/>
+      <stop offset="1" stop-color="#a9905f"/>
+    </linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.4" flood-color="#3a1e3a" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#chip)" stroke="#3a1e3a" stroke-width="1.5"/>
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#hl)"/>
+
+  <g filter="url(#shadow)">
+    <path d="M32 6 v5" stroke="#3a3d42" stroke-width="1.3"/>
+    <circle cx="32" cy="5" r="1.6" fill="none" stroke="#3a3d42" stroke-width="1.3"/>
+    <path d="M32 11 L49 20 L44 28 L39 24.5 L39 60 L25 60 L25 24.5 L20 28 Z" fill="url(#coat)" stroke="#5c4a2e" stroke-width="1.2"/>
+    <path d="M24 12 l8 6 l8 -6" fill="none" stroke="#5c4a2e" stroke-width="1"/>
+    <line x1="32" y1="24" x2="32" y2="55" stroke="#5c4a2e" stroke-width="1"/>
+    <circle cx="32" cy="30" r="1" fill="#5c4a2e"/>
+    <circle cx="32" cy="38" r="1" fill="#5c4a2e"/>
+    <circle cx="32" cy="46" r="1" fill="#5c4a2e"/>
+  </g>
+</svg>
