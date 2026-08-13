@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
   <defs>
     <linearGradient id="chip" x1="0" y1="0" x2="0" y2="1">
-      <stop offset="0" stop-color="#F5CB72"/>
-      <stop offset="1" stop-color="#B37D1E"/>
+      <stop offset="0" stop-color="#B87BB9"/>
+      <stop offset="1" stop-color="#613461"/>
     </linearGradient>
     <radialGradient id="hl" cx="30%" cy="20%" r="70%">
       <stop offset="0" stop-color="#ffffff" stop-opacity="0.4"/>
@@ -13,17 +13,25 @@
       <stop offset="1" stop-color="#c7ccd1"/>
     </linearGradient>
     <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
-      <feDropShadow dx="0" dy="1.5" stdDeviation="1.4" flood-color="#5c4008" flood-opacity="0.4"/>
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.4" flood-color="#3a1e3a" flood-opacity="0.4"/>
     </filter>
   </defs>
 
-  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#chip)" stroke="#5c4008" stroke-width="1.5"/>
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#chip)" stroke="#3a1e3a" stroke-width="1.5"/>
   <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#hl)"/>
 
   <g filter="url(#shadow)">
-    <rect x="18" y="44" width="28" height="6" rx="2" fill="url(#body)" stroke="#3a3d42" stroke-width="1.2"/>
-    <path d="M27 44 v-16 a5 5 0 0 1 5 -5 h6 a4 4 0 0 1 4 4 v6" fill="none" stroke="url(#body)" stroke-width="5.5" stroke-linecap="round"/>
-    <path d="M27 44 v-16 a5 5 0 0 1 5 -5 h6 a4 4 0 0 1 4 4 v6" fill="none" stroke="#3a3d42" stroke-width="1" stroke-linecap="round"/>
-    <rect x="18" y="27" width="10" height="4" rx="2" fill="#e6e9ec" stroke="#3a3d42" stroke-width="1" transform="rotate(-18 23 29)"/>
+    <rect x="14" y="22" width="5" height="28" fill="url(#body)" stroke="#3a3d42" stroke-width="1.1"/>
+    <rect x="45" y="22" width="5" height="28" fill="url(#body)" stroke="#3a3d42" stroke-width="1.1"/>
+    <path d="M14 22 h36" stroke="#3a3d42" stroke-width="1.5"/>
+    <g stroke="#9aa0aa" stroke-width="1.6" stroke-linecap="round">
+      <line x1="22" y1="27" x2="22" y2="46"/>
+      <line x1="27" y1="27" x2="27" y2="46"/>
+      <line x1="32" y1="27" x2="32" y2="46"/>
+      <line x1="37" y1="27" x2="37" y2="46"/>
+      <line x1="42" y1="27" x2="42" y2="46"/>
+    </g>
+    <line x1="19" y1="34" x2="45" y2="34" stroke="#6b6f76" stroke-width="1.4"/>
+    <rect x="12" y="50" width="40" height="3" fill="#8a8f98" stroke="#3a3d42" stroke-width="0.8"/>
   </g>
 </svg>

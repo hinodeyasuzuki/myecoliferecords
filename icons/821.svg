@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <defs>
+    <linearGradient id="chip" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#B87BB9"/>
+      <stop offset="1" stop-color="#613461"/>
+    </linearGradient>
+    <radialGradient id="hl" cx="30%" cy="20%" r="70%">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.4"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="kimono" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#e0637a"/>
+      <stop offset="1" stop-color="#9c2f47"/>
+    </linearGradient>
+    <filter id="shadow" x="-40%" y="-40%" width="180%" height="180%">
+      <feDropShadow dx="0" dy="1.5" stdDeviation="1.4" flood-color="#3a1e3a" flood-opacity="0.4"/>
+    </filter>
+  </defs>
+
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#chip)" stroke="#3a1e3a" stroke-width="1.5"/>
+  <rect x="3" y="3" width="58" height="58" rx="14" fill="url(#hl)"/>
+
+  <g filter="url(#shadow)">
+    <path d="M32 10 L18 18 L11 32 L18 34 L21 24 L24 30 L21 55 L43 55 L40 30 L43 24 L46 34 L53 32 L46 18 Z" fill="url(#kimono)" stroke="#5c1c2c" stroke-width="1.2"/>
+    <path d="M24 30 L30 15 L32 18 L26 32 Z" fill="#f4e4c1" stroke="#5c1c2c" stroke-width="1"/>
+    <path d="M40 30 L34 15 L32 18 L38 32 Z" fill="#f9efd6" stroke="#5c1c2c" stroke-width="1" opacity="0.9"/>
+    <rect x="21" y="36" width="22" height="8" fill="#e8c96b" stroke="#5c1c2c" stroke-width="1.1"/>
+    <rect x="28" y="34" width="8" height="12" fill="#d9a520" stroke="#5c1c2c" stroke-width="1"/>
+  </g>
+</svg>
