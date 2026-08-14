@@ -299,7 +299,7 @@ export default {
       }
     },
     linkToRepair() {
-      const url = `https://ss.hinodeya-ecolife.com/repairinfo/equipment.php?equipcode=${this.selectId}`;
+      const url = `https://s8.hinodeya-ecolife.com/repairinfo/equipment.php?equipcode=${this.selectId}`;
       window.open(url);
     }
   },

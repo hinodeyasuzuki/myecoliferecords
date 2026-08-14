@@ -828,7 +828,7 @@ var showMeasureTable = function (mesArray) {
 				// "</a>"+
 
 				//外部リンク
-				"<a href='https://ss.hinodeya-ecolife.com/ecoinfoai/practice.php?actionid=" + mes.mesdefID +
+				"<a href='https://s8.hinodeya-ecolife.com/ecoinfo/practice.php?actionid=" + mes.mesdefID +
 				"&cost=" + mes.costChangeOriginal + 
 				"&co2=" + mes.co2ChangeOriginal + 
 				"&initialcost=" + (mes.priceNew ? mes.priceNew : 0) +
