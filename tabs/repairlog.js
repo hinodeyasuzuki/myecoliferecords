@@ -1,5 +1,5 @@
 import { nextId } from "../lib/id.js";
-import { removeRepairlog, removePicture as unlinkPicture } from "../lib/unlink.js";
+import { removeRepairlog, removePicture as unlinkPicture, setRepairlogEquip } from "../lib/unlink.js";
 import { productNameFor, dateLabel, sortRepairlogEntries } from "../lib/repairlogSort.js";
 import { pictureSummary } from "../lib/pictureSummary.js";
 import { deletePictureBlob, getPictureBlob } from "../lib/pictureStore.js";
@@ -68,6 +68,9 @@ export default {
     },
     removeLog(id) {
       removeRepairlog(this.data, id);
+    },
+    setEquipForLog(id, equipId) {
+      setRepairlogEquip(this.data, id, equipId);
     },
     removeLogAndBackToList(id) {
       this.removeLog(id);
@@ -209,10 +212,10 @@ export default {
             </tr>
           </thead>
           <tbody>
-            <tr v-for="[id, log] in sortedRepairlogEntries" :key="id" style="vertical-align:top;">
+            <tr v-for="[id, log] in sortedRepairlogEntries" :key="id">
               <td>{{ dateLabelFor(log) }}</td>
               <td>{{ productNameForLog(log) }}</td>
-              <td style="max-height:2em;">{{ (log.about.substring(0, 100) + (log.about.length > 100 ? "..." : "")) || "(未入力)" }}</td>
+              <td>{{ log.about || "(未入力)" }}</td>
               <td><button @click="startEdit(id)" style="white-space:nowrap;">編集</button></td>
             </tr>
           </tbody>
@@ -231,8 +234,11 @@ export default {
             <input type="number" v-model.number="data.repairlog[editingId].month">月 
             <input type="number" v-model.number="data.repairlog[editingId].day">日
           </p>
-          <p><span class="rowtitle">機器<span class="open">*</span></span> {{ productNameForLog(data.repairlog[editingId]) }}
-            <button v-if="data.products[data.repairlog[editingId].product_id]" @click="$emit('jump-product', data.repairlog[editingId].product_id)">詳細</button>
+          <p><span class="rowtitle">機器<span class="open">*</span></span>
+            <select :value="data.repairlog[editingId].product_id" @change="setEquipForLog(editingId, $event.target.value)">
+              <option value="">選択してください</option>
+              <option v-for="(product, pid) in data.products" :key="pid" :value="pid">{{ pid }} ({{ product.name }})</option>
+            </select>
           </p>
           <p><span class="rowtitle">修理者<span class="open">*</span></span>
             <select v-model.number="data.repairlog[editingId].repairer">

@@ -329,13 +329,8 @@ export default {
                   <input type="button" :value="eq3.title" :class="{highlighted: existEquipInProducts(eq3.id)}" @click="selectId = eq3.id;equipShow = false;editingId = null">
                 </template>
               </td>
-            </tr>
-          </tbody>
-        </table>
-        <span class="up" @click="equipShow = false;">▲分類表示を消す</span>
       </div>
 
-      <p v-if="selectId && !equipShow" class="selected-category">
         選択中の分類:  <img :src="'./icons/' + selectId + '.svg'" alt="" class="ms-1" style="width: 3em; height: 3em;position:relative;top:1em;">
         {{ getEquipTitle(selectId) }} 
       </p>
@@ -434,8 +429,13 @@ export default {
           </template>
           <p><span class="rowtitle">修理履歴</span>　<button @click="addRepairlogFor(editingId)">＋新規追加</button></p>
           <ul>
+<<<<<<< HEAD
             <li v-for="lid in sortedRepairlogIds(data.products[editingId].repairlog_ids)" :key="lid">
               <a href="#" @click.prevent="$emit('jump-repairlog', lid)">{{ repairlogSummary(lid).substring(0, 50) + (repairlogSummary(lid).length > 50 ? "..." : "") }}</a>
+=======
+            <li v-for="lid in data.products[editingId].repairlog_ids" :key="lid">
+              <a href="#" @click.prevent="$emit('jump-repairlog', lid)">{{ repairlogSummary(lid) }}</a>
+>>>>>>> parent of 6735898 (修理履歴編集画面で機器を選択不可にし、機器名を表示するのみに変更)
               <!-- <button @click.stop="removeRepairlogEntry(lid)">削除</button> -->
             </li>
           </ul>
