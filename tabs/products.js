@@ -68,6 +68,9 @@ export default {
     sortedEquips() {
       return [...this.master.equips].sort((a, b) => Number(a.id) - Number(b.id));
     },
+    repairedProductIds() {
+      return new Set(Object.values(this.data.repairlog).map((log) => log.product_id).filter(Boolean));
+    },
     sortedProductEntries() {
       const entries = this.selectId
         ? Object.entries(this.data.products).filter(([, item]) => {
@@ -79,7 +82,14 @@ export default {
             );
           })
         : Object.entries(this.data.products);
-      return sortProductEntries(entries, this.sortKey, this.sortDir, this.equipsById, this.methodOptions);
+      return sortProductEntries(
+        entries,
+        this.sortKey,
+        this.sortDir,
+        this.equipsById,
+        this.methodOptions,
+        (id) => this.repairedProductIds.has(id)
+      );
     },
     energyFlag() {
       const item = this.data.products[this.editingId];
@@ -92,6 +102,17 @@ export default {
     }
   },
   methods: {
+    productRepairlogIds(productId) {
+      const ids = Object.keys(this.data.repairlog).filter((lid) => this.data.repairlog[lid].product_id === productId);
+      const product = this.data.products[productId];
+      if (product && !(product.repairlog_ids.length === ids.length && product.repairlog_ids.every((id, i) => id === ids[i]))) {
+        product.repairlog_ids = ids;
+      }
+      return ids;
+    },
+    hasRepairlogFor(productId) {
+      return this.repairedProductIds.has(productId);
+    },
     sortedRepairlogIds(ids) {
       return [...ids].sort((a, b) => {
         const logA = this.data.repairlog[a];
@@ -329,8 +350,12 @@ export default {
                   <input type="button" :value="eq3.title" :class="{highlighted: existEquipInProducts(eq3.id)}" @click="selectId = eq3.id;equipShow = false;editingId = null">
                 </template>
               </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
+      <p v-if="selectId && ( selectId % 10) !=0 " class="selected-category">
         選択中の分類:  <img :src="'./icons/' + selectId + '.svg'" alt="" class="ms-1" style="width: 3em; height: 3em;position:relative;top:1em;">
         {{ getEquipTitle(selectId) }} 
       </p>
@@ -338,7 +363,7 @@ export default {
       <template v-if="editingId === null">
         <p>中古数：{{ sortedProductEntries.filter(([, item]) => item.method === 3 || item.method === 4 || item.method === 5).length }}件
         　／　愛用数：{{ sortedProductEntries.filter(([, item]) => item.favorite).length }}件
-        　／　修理数：{{ sortedProductEntries.filter(([, item]) => item.repairlog_ids.length > 0).length }}件</p>
+        　／　修理数：{{ sortedProductEntries.filter(([id]) => hasRepairlogFor(id)).length }}件</p>
         <table>
           <thead>
             <tr class="table-sortable">
@@ -361,7 +386,7 @@ export default {
               <td>{{ modelNameFor(item) }}</td>
               <td>{{ item.purchaseyear }}</td>
               <td>{{ methodLabelDisplay(item.method) }}</td>
-              <td>{{ item.repairlog_ids.length > 0 ? "○" : "" }}</td>
+              <td>{{ hasRepairlogFor(id) ? "○" : "" }}</td>
               <td>{{ item.favorite ? "❤" : "" }}</td>
               <td class="hide_sm">{{ item.enduseyear }}</td>
               <td><button @click="startEdit(id)">編集</button></td>
@@ -371,7 +396,7 @@ export default {
         <button v-if="selectId" @click="addProductAndEdit">＋{{ getEquipTitle(selectId) }} を追加</button>
         <button v-else @click="addProductAndEdit">＋分類を指定せず機器を追加</button>
         
-        <section class="outershare" v-if="selectId">
+        <section class="outershare" v-if="selectId && ( selectId % 10) !=0 ">
           <p>家庭の機器修理方法サイトから、{{ getEquipTitle(selectId) }} の修理の概要を表示することができます。</p>
           <button type="button" @click="linkToRepair">修理方法を表示する</button>
         </section>
@@ -429,13 +454,8 @@ export default {
           </template>
           <p><span class="rowtitle">修理履歴</span>　<button @click="addRepairlogFor(editingId)">＋新規追加</button></p>
           <ul>
-<<<<<<< HEAD
-            <li v-for="lid in sortedRepairlogIds(data.products[editingId].repairlog_ids)" :key="lid">
+            <li v-for="lid in sortedRepairlogIds(productRepairlogIds(editingId))" :key="lid">
               <a href="#" @click.prevent="$emit('jump-repairlog', lid)">{{ repairlogSummary(lid).substring(0, 50) + (repairlogSummary(lid).length > 50 ? "..." : "") }}</a>
-=======
-            <li v-for="lid in data.products[editingId].repairlog_ids" :key="lid">
-              <a href="#" @click.prevent="$emit('jump-repairlog', lid)">{{ repairlogSummary(lid) }}</a>
->>>>>>> parent of 6735898 (修理履歴編集画面で機器を選択不可にし、機器名を表示するのみに変更)
               <!-- <button @click.stop="removeRepairlogEntry(lid)">削除</button> -->
             </li>
           </ul>
