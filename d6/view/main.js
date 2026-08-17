@@ -261,6 +261,24 @@ function startCalc(command, param) {
 //		none
 // set
 //		none
+// updateOverallOnlySections( itemizeGraph ) ------------------------------
+//		#graphMonthly and #cons only make sense for the "全体" tab, which
+//		aggregates every category; hide them on individual category tabs
+//		(給湯, 冷房, ...).
+//		tabNowName isn't reliable for this: it's only updated inside
+//		tabclick(), so right after page load (before the user has clicked
+//		any tab) it's still stuck at its initial placeholder value even
+//		though the overall view is what's actually being shown. Instead,
+//		detect "overall" from the itemize graph data itself: D6's
+//		getItemizeGraph() puts every category into ret.clist for the
+//		overall ("TO") view, but always exactly one (the selected
+//		category itself) for a single-category view.
+function updateOverallOnlySections(itemizeGraph) {
+	var isOverall = !!(itemizeGraph && itemizeGraph.clist && itemizeGraph.clist.length > 1);
+	$("#graphMonthly").toggle(isOverall);
+	$("#cons").toggle(isOverall);
+}
+
 var getCalcResult = function (command, res) {
 	function isset(data) {
 		return typeof data != "undefined";
@@ -283,6 +301,7 @@ var getCalcResult = function (command, res) {
 			$("#average").html(showAverageTable(res.average));
 			$("#cons").html(showItemizeTable(res.itemize));
 			$("#measure").html(mestitle + showMeasureTable(res.measure));
+			updateOverallOnlySections(res.itemize_graph);
 
 			//display graph
 			graphItemize(res.itemize_graph);
@@ -348,6 +367,7 @@ var getCalcResult = function (command, res) {
 			//change result
 			$("#average").html(showAverageTable(res.average));
 			$("#cons").html(showItemizeTable(res.itemize));
+			updateOverallOnlySections(res.itemize_graph);
 			graphItemize(res.itemize_graph);
 			graphMonthly(res.monthly);
 
