@@ -414,16 +414,16 @@ export default {
             </li>
           </ul>
           <!-- <p><span class="rowtitle">作成日時</span> <input type="text" v-model="data.repairlog[editingId].created_at"></p> -->
-          <p>
-            <button class="highlighted" @click="registerLog">登録する</button>
+          <p class="center">
+            <button class="highlighted btnlarge" @click="registerLog">登録する</button>
             <button @click="removeLogAndBackToList(editingId)">削除</button>
           </p>
         </div>
 
         <section class="outershare">
           <p>修理ありがとうございます。<span class="open">*</span> がついた入力済みのデータを、<a href="https://thirdhanders.hinodeya-ecolife.com/">Third Handersサイト</a>から公開することができます。
-          「コピーする」ボタンを押し、Third Handersサイトにログインして、貼り付けてください。</p>
-          <button type="button" @click="copyToThirdHanders">コピーする</button>
+          「公開用にコピーする」ボタンを押し、Third Handersサイトにログインして、貼り付けてください。</p>
+          <button type="button" @click="copyToThirdHanders">公開用にコピーする</button>
         </section>
       </template>
     </section>

@@ -528,8 +528,8 @@ export default {
           </ul>
           <p><span class="rowtitle">思い出<span class="open">*</span></span> <textarea class="memory" v-model="data.products[editingId].memory"></textarea></p>
           <p><span class="rowtitle">使用終了年</span> <input type="number" v-model.number="data.products[editingId].enduseyear">年</p>
-          <p>
-            <button class="highlighted" @click="registerProduct">登録する</button>
+          <p class="center">
+            <button class="highlighted btnlarge" @click="registerProduct">登録する</button>
             <button @click="confirmRemoveProduct(editingId)">削除</button>
           </p>
         </div>
@@ -537,8 +537,8 @@ export default {
 
       <section class="outershare" v-if="ecouseFlag">
         <p>{{methodOptions[data.products[editingId].method-1].label}} ありがとうございます。<span class="open">*</span> がついた入力済みのデータを、<a href="https://thirdhanders.hinodeya-ecolife.com/">Third Handersサイト</a>から公開することができます。
-        「コピーする」ボタンを押し、Third Handersサイトにログインして、貼り付けてください。</p>
-        <button type="button" @click="copyToThirdHanders">コピーする</button>
+        「公開用にコピーする」ボタンを押し、Third Handersサイトにログインして、貼り付けてください。</p>
+        <button type="button" @click="copyToThirdHanders">公開用にコピーする</button>
       </section>
     </section>
   `,

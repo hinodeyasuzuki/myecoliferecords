@@ -13,13 +13,32 @@ export default {
     return {
       editingId: null,
       linkTab: "products",
+      pendingSnapshot: null,
+      registered: false,
     };
   },
   created() {
     if (this.highlightId) {
+      this.pendingSnapshot = JSON.parse(JSON.stringify(this.data.picture[this.highlightId]));
       this.editingId = this.highlightId;
       this.$emit("consumed-highlight");
     }
+  },
+  unmounted() {
+    if (this.editingId !== null && !this.registered) {
+      this.discardEdit(this.editingId);
+    }
+  },
+  watch: {
+    editingId(newVal, oldVal) {
+      if (oldVal !== null && oldVal !== undefined) {
+        if (!this.registered) {
+          this.discardEdit(oldVal);
+        }
+        this.registered = false;
+        this.pendingSnapshot = null;
+      }
+    },
   },
   computed: {
     productPictureIds() {
@@ -48,10 +67,21 @@ export default {
       this.editingId = id;
     },
     removePicture(id) {
+      this.registered = true;
       unlinkPicture(this.data, id);
       deletePictureBlob(id).catch((err) => console.error(err));
       clearPictureBlobCache(id);
       this.editingId = null;
+    },
+    discardEdit(id) {
+      if (this.pendingSnapshot && this.data.picture[id]) {
+        this.data.picture[id] = this.pendingSnapshot;
+      }
+    },
+    registerPicture() {
+      if (!this.pictureSrc(this.editingId)) return;
+      this.registered = true;
+      this.backToList();
     },
     async onFileSelected(id, event) {
       const file = event.target.files[0];
@@ -85,6 +115,7 @@ export default {
       }
     },
     startEdit(id) {
+      this.pendingSnapshot = JSON.parse(JSON.stringify(this.data.picture[id]));
       this.editingId = id;
     },
     backToList() {
@@ -129,27 +160,26 @@ export default {
       <template v-else>
         <div v-if="data.picture[editingId]" class="picture-card">
           <p><button @click="backToList">← 一覧に戻る</button></p>
-          <p><strong>{{ editingId }}</strong> <button @click="removePicture(editingId)">削除</button></p>
+          <p><strong>{{ editingId }}</strong></p>
           <p>
             <img v-if="pictureSrc(editingId)" :src="pictureSrc(editingId)" class="picture-thumb">
           </p>
           <p>
             カメラで撮影:
-            <input type="file" accept="image/*" capture="environment" @change="onFileSelected(editingId, $event)">
-          </p>
-          <p>
-            <button @click="$refs.libraryFileInput.click()">アルバムから選択（iCloudなど）</button>
-            <input type="file" accept="image/*" ref="libraryFileInput" style="display:none" @change="onFileSelected(editingId, $event)">
+            <input type="file" accept="image/*" capture="environment" @change="onFileSelected(editingId, $event)">／
+            <button @click="$refs.libraryFileInput.click()">ファイルから選択</button>
+            <input type="file" accept="image/*" ref="libraryFileInput" style="display:none" @change="onFileSelected(editingId, $event)">／
             <button @click="onPickFromGooglePhotos(editingId)">Google Photosから選択</button>
           </p>
           <p v-if="data.picture[editingId].sourceUrl" style="color:var(--muted);">
             取込元: <a :href="data.picture[editingId].sourceUrl" target="_blank" rel="noopener">Google Photos</a>（リンクは時間が経つと無効になる場合があります）
           </p>
-          <p style="color:var(--muted);">
-            ※「アルバムから選択」はOS標準の写真ピッカーを一度だけ経由して取り込む方式です。iCloud等のライブラリに同期済みの写真も選べますが、Google Photosのように後からリンク先を参照し続けることはできません。
-          </p>
           <p><span class="rowtitle">メモ</span> <textarea class="memory" v-model="data.picture[editingId].memo"></textarea></p>
           <p><span class="rowtitle">作成日時</span> <input type="text" v-model="data.picture[editingId].created_at"></p>
+          <p class="center">
+            <button class="highlighted btnlarge" :disabled="!pictureSrc(editingId)" @click="registerPicture">登録する</button>
+            <button @click="removePicture(editingId)">削除</button>
+          </p>
         </div>
       </template>
     </section>
