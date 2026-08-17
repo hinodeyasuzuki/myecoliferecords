@@ -283,7 +283,6 @@ var getCalcResult = function (command, res) {
 			$("#average").html(showAverageTable(res.average));
 			$("#cons").html(showItemizeTable(res.itemize));
 			$("#measure").html(mestitle + showMeasureTable(res.measure));
-			leanModalSet();
 
 			//display graph
 			graphItemize(res.itemize_graph);
@@ -331,7 +330,6 @@ var getCalcResult = function (command, res) {
 		case "modal":
 			//show modal page for measure detail
 			$("#header")[0].scrollIntoView(true);
-			leanModalSet();
 
 			//create modal page
 			var modalHtml = createModalPage(res.measure_detail);
@@ -355,7 +353,6 @@ var getCalcResult = function (command, res) {
 
 			//change measure list
 			$("#measure").html(mestitle + showMeasureTable(res.measure));
-			leanModalSet();
 			if (showOver15) {
 				$("#itemize").removeClass("limit");
 			}

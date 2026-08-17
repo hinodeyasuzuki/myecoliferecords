@@ -96,8 +96,8 @@ JSONエクスポート時には、IndexedDB内の画像データを `pictureBlob
 
 保存形式の詳細は以下を参照してください。
 
-- `saved-input-format.md`
-- `saved-input.schema.json`
+- `https://hinodeyasuzuki.github.io/homeenergycodes-public/input/saved-input-format.md`
+- `https://hinodeyasuzuki.github.io/homeenergycodes-public/input/saved-input.schema.json`
 
 ## Google Photos連携について
 
