@@ -100,8 +100,11 @@
     font-weight: bold;
     vertical-align: top;
   }
-  input[type="button"].highlighted { background: var(--accent) !important; color: #fff; border-color: var(--accent); }
+  input[type="button"].highlighted, button.highlighted { background: var(--accent) !important; color: #fff; border-color: var(--accent); }
   input[type="number"] { text-align: right;width:6em; }
+  input[type="number"].no-spin::-webkit-outer-spin-button,
+  input[type="number"].no-spin::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  input[type="number"].no-spin { -moz-appearance: textfield; appearance: textfield; }
 
   table.equip-table{
     border: 1px solid var(--border);

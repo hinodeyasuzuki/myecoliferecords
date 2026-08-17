@@ -86,11 +86,11 @@ export default {
           <tr v-for="row in energyRows" :key="row.code">
             <td class="item">{{ row.name }}</td>
             <td class="amount">
-              <input type="number" v-model.number="energyValues[row.code]">
+              <input type="number" class="no-spin" v-model.number="energyValues[row.code]">
               <span v-if="row.unit">{{ row.unit }}</span>
             </td>
             <td class="amount">
-              <input v-if="row.costCode" type="number" v-model.number="energycostValues[row.costCode]">
+              <input v-if="row.costCode" type="number" class="no-spin" v-model.number="energycostValues[row.costCode]">
             </td>
           </tr>
         </tbody>

@@ -30,14 +30,33 @@ export default {
       cameFromProduct: false,
       selectId: "",
       smLevel1Id: "",
+      pendingSnapshot: null,
+      registered: false,
     };
   },
   created() {
     if (this.highlightId) {
+      this.pendingSnapshot = JSON.parse(JSON.stringify(this.data.repairlog[this.highlightId]));
       this.editingId = this.highlightId;
       this.cameFromProduct = true;
       this.$emit("consumed-highlight");
     }
+  },
+  unmounted() {
+    if (this.editingId !== null && !this.registered) {
+      this.discardEdit(this.editingId);
+    }
+  },
+  watch: {
+    editingId(newVal, oldVal) {
+      if (oldVal !== null && oldVal !== undefined) {
+        if (!this.registered) {
+          this.discardEdit(oldVal);
+        }
+        this.registered = false;
+        this.pendingSnapshot = null;
+      }
+    },
   },
   computed: {
     equipsById() {
@@ -51,6 +70,12 @@ export default {
         ? Object.entries(this.data.repairlog).filter(([, log]) => this.logMatchesCategory(log, this.selectId))
         : Object.entries(this.data.repairlog);
       return sortRepairlogEntries(entries, this.sortKey, this.sortDir, this.data.products);
+    },
+    yearOptions() {
+      const current = new Date().getFullYear();
+      const years = [];
+      for (let y = current; y >= current - 20; y--) years.push(y);
+      return years;
     },
   },
   methods: {
@@ -70,8 +95,22 @@ export default {
       removeRepairlog(this.data, id);
     },
     removeLogAndBackToList(id) {
+      this.registered = true;
       this.removeLog(id);
       this.editingId = null;
+    },
+    discardEdit(id) {
+      if (this.pendingSnapshot && this.data.repairlog[id]) {
+        this.data.repairlog[id] = this.pendingSnapshot;
+      }
+    },
+    registerLog() {
+      this.registered = true;
+      if (this.cameFromProduct) {
+        this.backToProduct();
+      } else {
+        this.backToList();
+      }
     },
     setSort(key) {
       if (this.sortKey === key) {
@@ -82,6 +121,7 @@ export default {
       }
     },
     startEdit(id) {
+      this.pendingSnapshot = JSON.parse(JSON.stringify(this.data.repairlog[id]));
       this.editingId = id;
     },
     backToList() {
@@ -225,11 +265,20 @@ export default {
             <button v-if="cameFromProduct" @click="backToProduct">← 機器に戻る</button>
             <button v-else @click="backToList">← 一覧に戻る</button>
           </p>
-          <p><span class="rowtitle">{{ editingId }}</span> <button @click="removeLogAndBackToList(editingId)">削除</button></p>
+          <p><span class="rowtitle">{{ editingId }}</span></p>
           <p><span class="rowtitle">修理日<span class="open">*</span></span>
-            <input type="number" v-model.number="data.repairlog[editingId].year">年 
-            <input type="number" v-model.number="data.repairlog[editingId].month">月 
-            <input type="number" v-model.number="data.repairlog[editingId].day">日
+            <select v-model.number="data.repairlog[editingId].year">
+              <option value="">　</option>
+              <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}</option>
+            </select>年
+            <select v-model.number="data.repairlog[editingId].month">
+              <option value="">　</option>
+              <option v-for="m in 12" :key="m" :value="m">{{ m }}</option>
+            </select>月
+            <select v-model.number="data.repairlog[editingId].day">
+              <option value="">　</option>
+              <option v-for="d in 31" :key="d" :value="d">{{ d }}</option>
+            </select>日
           </p>
           <p><span class="rowtitle">機器<span class="open">*</span></span> {{ productNameForLog(data.repairlog[editingId]) }}
             <button v-if="data.products[data.repairlog[editingId].product_id]" @click="$emit('jump-product', data.repairlog[editingId].product_id)">詳細</button>
@@ -240,7 +289,7 @@ export default {
               <option v-for="m in repairerOptions" :key="m.val" :value="m.val">{{ m.label }}</option>
             </select>
           </p>
-          <p><span class="rowtitle">修理代<span class="open">*</span></span><input type="number" v-model.number="data.repairlog[editingId].cost">円</p>
+          <p><span class="rowtitle">修理代<span class="open">*</span></span><input type="number" class="no-spin" v-model.number="data.repairlog[editingId].cost">円</p>
           <p><span class="rowtitle">修理内容<span class="open">*</span></span>
             <textarea class="memory" v-model="data.repairlog[editingId].about"></textarea>
           </p>
@@ -256,6 +305,10 @@ export default {
             </li>
           </ul>
           <!-- <p><span class="rowtitle">作成日時</span> <input type="text" v-model="data.repairlog[editingId].created_at"></p> -->
+          <p>
+            <button class="highlighted" @click="registerLog">登録する</button>
+            <button @click="removeLogAndBackToList(editingId)">削除</button>
+          </p>
         </div>
 
         <section class="outershare">

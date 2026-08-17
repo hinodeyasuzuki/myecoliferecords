@@ -6,29 +6,39 @@ export default {
   // 保存データの互換性の補完は app.js の loadData()/importJson() が
   // normalizeRoomData() を通して行うため、ここでは行わない。
   data() {
-    return { modeEdit: false };
+    return { modeEdit: false, draft: null };
   },
   methods: {
+    startEdit() {
+      this.draft = { room: JSON.parse(JSON.stringify(this.data.room)) };
+      this.modeEdit = true;
+    },
+    registerRoom() {
+      this.data.room = this.draft.room;
+      this.draft = null;
+      this.modeEdit = false;
+    },
     addRoom() {
-      const id = nextId(Object.keys(this.data.room), "r");
-      this.data.room[id] = { name: "", area: null, connected_room_ids: [] };
+      const id = nextId(Object.keys(this.draft.room), "r");
+      this.draft.room[id] = { name: "", area: null, connected_room_ids: [] };
     },
     removeRoom(id) {
-      removeRoomWithLinks(this.data, id);
+      removeRoomWithLinks(this.draft, id);
     },
     onConnectionsChange(id, event) {
       const values = Array.from(event.target.selectedOptions).map((o) => o.value);
-      setRoomConnections(this.data, id, values);
+      setRoomConnections(this.draft, id, values);
     },
   },
   computed: {
     isNodata() {
-      return !Object.keys(this.data.room).length;
+      const room = this.modeEdit ? this.draft.room : this.data.room;
+      return !Object.keys(room).length;
     }
   },
   created() {
     if (this.isNodata) {
-      this.modeEdit = true;
+      this.startEdit();
     }
   },
 
@@ -41,8 +51,8 @@ export default {
       <span v-if="data.room && Object.keys(data.room).length">※行き来できる部屋は、CtrlキーやShiftキーを押しながら複数選択・選択解除できます。</span>
       </p>
 
-      <input type="button" value="部屋を編集する" v-if="!modeEdit" @click="modeEdit = true">
-      <input type="button" value="編集を終了する" v-if="modeEdit && !isNodata" @click="modeEdit = false">
+      <input type="button" value="部屋を編集する" v-if="!modeEdit" @click="startEdit">
+      <input type="button" value="登録する" v-if="modeEdit && !isNodata" @click="registerRoom">
 
       <table v-if="!modeEdit" style="margin-top:12px; border-collapse:collapse; width:100%;">
         <thead><tr><th>ID</th><th>呼び名</th><th>広さ(畳)</th><th>行き来できる部屋</th></tr></thead>
@@ -62,13 +72,13 @@ export default {
       <table v-if="modeEdit" style="margin-top:12px; border-collapse:collapse; width:100%;">
         <thead><tr><th>ID</th><th>呼び名</th><th>広さ(畳)</th><th>行き来できる部屋</th><th></th></tr></thead>
         <tbody>
-          <tr v-for="(room, id) in data.room" :key="id">
+          <tr v-for="(room, id) in draft.room" :key="id">
             <td>{{ id }}</td>
             <td><input type="text" v-model="room.name"></td>
-            <td><input type="number" v-model.number="room.area"></td>
+            <td><input type="number" class="no-spin" v-model.number="room.area"></td>
             <td>
               <select multiple @change="onConnectionsChange(id, $event)">
-                <template v-for="(other, oid) in data.room" :key="oid">
+                <template v-for="(other, oid) in draft.room" :key="oid">
                   <option v-if="oid !== id" :value="oid" :selected="room.connected_room_ids.includes(oid)">{{ oid }} ({{ other.name }})</option>
                 </template>
               </select>

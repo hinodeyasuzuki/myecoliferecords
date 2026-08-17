@@ -44,10 +44,15 @@ export default {
       smLevel1Id: "",
       smLevel2Id: "",
       isNarrow: window.innerWidth <= 600,
+      pendingIsNew: false,
+      pendingSnapshot: null,
+      registered: false,
     };
   },
   created() {
     if (this.highlightId) {
+      this.pendingIsNew = false;
+      this.pendingSnapshot = JSON.parse(JSON.stringify(this.data.products[this.highlightId]));
       this.editingId = this.highlightId;
       this.$emit("consumed-highlight");
     }
@@ -57,10 +62,31 @@ export default {
   },
   unmounted() {
     window.removeEventListener("resize", this.updateIsNarrow);
+    if (this.editingId !== null && !this.registered) {
+      this.discardEdit(this.editingId);
+    }
+  },
+  watch: {
+    editingId(newVal, oldVal) {
+      if (oldVal !== null && oldVal !== undefined) {
+        if (!this.registered) {
+          this.discardEdit(oldVal);
+        }
+        this.registered = false;
+        this.pendingIsNew = false;
+        this.pendingSnapshot = null;
+      }
+    },
   },
   computed: {
     equipsById() {
       return buildEquipsById(this.master.equips);
+    },
+    yearOptions() {
+      const current = new Date().getFullYear();
+      const years = [];
+      for (let y = current; y >= current - 100; y--) years.push(y);
+      return years;
     },
     level1Options() {
       return equipLevel1Options(this.master.equips);
@@ -143,6 +169,22 @@ export default {
       this.removeProduct(id);
       this.editingId = null;
     },
+    confirmRemoveProduct(id) {
+      if (!confirm("本当に削除しますか？")) return;
+      this.registered = true;
+      this.removeProductAndBackToList(id);
+    },
+    discardEdit(id) {
+      if (this.pendingIsNew) {
+        delete this.data.products[id];
+      } else if (this.pendingSnapshot) {
+        this.data.products[id] = this.pendingSnapshot;
+      }
+    },
+    registerProduct() {
+      this.registered = true;
+      this.backToList();
+    },
     addRepairlogFor(productId) {
       const id = nextId(Object.keys(this.data.repairlog), "l");
       this.data.repairlog[id] = {
@@ -196,6 +238,8 @@ export default {
       }
     },
     startEdit(id) {
+      this.pendingIsNew = false;
+      this.pendingSnapshot = JSON.parse(JSON.stringify(this.data.products[id]));
       this.editingId = id;
     },
     backToList() {
@@ -203,11 +247,15 @@ export default {
     },
     addProductAndEdit() {
       const id = this.addProduct();
+      this.pendingIsNew = true;
+      this.pendingSnapshot = null;
       this.editingId = id;
     },
     addProductForEquip(equipId) {
       this.selectId = equipId;
       const id = this.addProduct();
+      this.pendingIsNew = true;
+      this.pendingSnapshot = null;
       this.editingId = id;
       this.equipShow = false;
       this.smLevel1Id = "";
@@ -386,7 +434,7 @@ export default {
       <template v-else>
         <div v-if="data.products[editingId]" style="border:1px solid var(--border); padding:12px; margin-bottom:12px; border-radius:6px;">
           <p><button @click="backToList">← 一覧に戻る</button></p>
-          <p><strong>{{ editingId }}</strong> <button @click="removeProductAndBackToList(editingId)">削除</button></p>
+          <p><strong>{{ editingId }}</strong></p>
           <p><span class="rowtitle">呼び名<span class="open">*</span></span> <input type="text" v-model="data.products[editingId].name"></p>
           <p class="rowtitlepadding"><span class="rowtitle">製品分類<span class="open">*</span></span>
             <select :value="equipSelection(data.products[editingId]).level1Id" @change="setEquip(data.products[editingId], $event.target.value)">
@@ -402,7 +450,11 @@ export default {
               <option v-for="eq in level3Options(equipSelection(data.products[editingId]).level2Id)" :key="eq.id" :value="eq.id">{{ eq.title }}</option>
             </select>
           </p>
-          <p><span class="rowtitle">入手年月<span class="open">*</span></span> <input type="number" v-model.number="data.products[editingId].purchaseyear">年
+          <p><span class="rowtitle">入手年月<span class="open">*</span></span>
+            <select v-model.number="data.products[editingId].purchaseyear">
+              <option value="">　</option>
+              <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}</option>
+            </select>年
             <select v-model.number="data.products[editingId].purchasemonth">
               <option v-for="m in monthOptions" :key="m.val" :value="m.val">{{ m.label }}</option>
             </select>
@@ -418,7 +470,12 @@ export default {
           <p><span class="rowtitle">販売者</span> <input type="text" class="w100" v-model="data.products[editingId].seller"></p>
 
           <p><span class="rowtitle">愛用品</span> <input type="checkbox" v-model="data.products[editingId].favorite"></p>
-          <p v-if="data.products[editingId].method == 3 || data.products[editingId].method == 4"><span class="rowtitle">製造年</span> <input type="number" v-model.number="data.products[editingId].manufactureyear"></p>
+          <p v-if="data.products[editingId].method == 3 || data.products[editingId].method == 4"><span class="rowtitle">製造年</span>
+            <select v-model.number="data.products[editingId].manufactureyear">
+              <option value="">　</option>
+              <option v-for="y in yearOptions" :key="y" :value="y">{{ y }}</option>
+            </select>年
+          </p>
           <p><span class="rowtitle">部屋</span>
             <select v-if="data.showRoom" v-model="data.products[editingId].room_id">
               <option value="">選択してください</option>
@@ -451,6 +508,10 @@ export default {
           </ul>
           <p><span class="rowtitle">思い出<span class="open">*</span></span> <textarea class="memory" v-model="data.products[editingId].memory"></textarea></p>
           <p><span class="rowtitle">使用終了年</span> <input type="number" v-model.number="data.products[editingId].enduseyear">年</p>
+          <p>
+            <button class="highlighted" @click="registerProduct">登録する</button>
+            <button @click="confirmRemoveProduct(editingId)">削除</button>
+          </p>
         </div>
       </template>
 
