@@ -20,7 +20,7 @@ const REPAIRER_OPTIONS = [
 ];
 
 export default {
-  props: ["data", "master", "highlightId"],
+  props: ["data", "master", "highlightId", "categoryFilter"],
   emits: ["consumed-highlight", "jump-picture", "jump-product"],
   data() {
     return {
@@ -29,7 +29,6 @@ export default {
       sortKey: "date",
       sortDir: "desc",
       cameFromProduct: false,
-      selectId: "",
       addLogStep: null,
       newEquipForm: { name: "", equip_id: "", purchaseyear: null },
       newLogProductId: "",
@@ -62,6 +61,15 @@ export default {
     },
   },
   computed: {
+    // 機器/修理履歴タブ間で共有するカテゴリー選択状態(app.jsのcategoryFilter)。
+    selectId: {
+      get() {
+        return this.categoryFilter.id;
+      },
+      set(id) {
+        this.categoryFilter.id = id;
+      },
+    },
     equipsById() {
       return buildEquipsById(this.master.equips);
     },
@@ -384,6 +392,7 @@ export default {
               <option value="">　</option>
               <option v-for="d in 31" :key="d" :value="d">{{ d }}</option>
             </select>日
+            <input type="button" value="今日" @click="data.repairlog[editingId].year = new Date().getFullYear(); data.repairlog[editingId].month = new Date().getMonth() + 1; data.repairlog[editingId].day = new Date().getDate();">
           </p>
           <p><span class="rowtitle">機器<span class="open">*</span></span>
             <select :value="data.repairlog[editingId].product_id" @change="setEquipForLog(editingId, $event.target.value)">

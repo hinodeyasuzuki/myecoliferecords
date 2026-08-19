@@ -63,6 +63,9 @@ export const master = reactive({
 
 export const highlight = reactive({ repairlog: null, picture: null, product: null });
 
+// 機器/修理履歴タブ間で共有するカテゴリー選択状態(タブ切替では保持し、再読み込みではリセットする)。
+export const categoryFilter = reactive({ id: "" });
+
 // マスタデータ(診断項目・機器分類・エネルギー種別等)は公開済みのAPIサイトから読み込む。
 // このリポジトリのdocs/api/v1/*.json をローカルで再ビルドしていなくても、
 // 常に公開済みの最新マスタデータを参照できるようにするため。
@@ -82,6 +85,7 @@ const app = createApp({
       data,
       master,
       highlight,
+      categoryFilter,
       tabs: [
         { id: "top", label: "トップ" },
         { id: "room", label: "部屋" },

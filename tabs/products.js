@@ -29,7 +29,7 @@ const MONTH_OPTIONS = [
 ];
 
 export default {
-  props: ["data", "master", "highlightId"],
+  props: ["data", "master", "highlightId", "categoryFilter"],
   emits: ["jump-repairlog", "jump-picture", "consumed-highlight"],
   data() {
     return {
@@ -38,7 +38,6 @@ export default {
       editingId: null,
       sortKey: "purchaseyear",
       sortDir: "desc",
-      selectId: "",
       isNarrow: window.innerWidth <= 600,
       pendingIsNew: false,
       pendingSnapshot: null,
@@ -75,6 +74,15 @@ export default {
     },
   },
   computed: {
+    // 機器/修理履歴タブ間で共有するカテゴリー選択状態(app.jsのcategoryFilter)。
+    selectId: {
+      get() {
+        return this.categoryFilter.id;
+      },
+      set(id) {
+        this.categoryFilter.id = id;
+      },
+    },
     equipsById() {
       return buildEquipsById(this.master.equips);
     },
@@ -412,6 +420,7 @@ export default {
             <select v-model.number="data.products[editingId].purchasemonth">
               <option v-for="m in monthOptions" :key="m.val" :value="m.val">{{ m.label }}</option>
             </select>
+            <input type="button" value="今月" @click="data.products[editingId].purchaseyear = new Date().getFullYear(); data.products[editingId].purchasemonth = new Date().getMonth() + 1;">
           </p>
           <p><span class="rowtitle">入手方法<span class="open">*</span></span>
             <select v-model.number="data.products[editingId].method">
