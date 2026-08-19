@@ -178,18 +178,18 @@ export default {
           @click="setConsTab(t.code)"
         >{{ t.title }}</button>
       </nav>
-      <nav class="unit-tabs">
+
+      <nav class="unit-tabs" v-if="tabGroups.length > 0">
         <button :class="{active: isAllActive()}" @click="showAll">全体</button>
-      </nav>
-      <nav v-for="g in tabGroups" :key="g.key" class="unit-tabs">
-        <span class="unit-tabs-label">{{ g.title }}</span>
-        <button
-          v-for="n in groupCount(g.key)"
-          :key="n"
-          :class="{active: isUnitActive(g.key, n)}"
-          @click="selectUnit(g.key, n)"
-        >{{ n }}{{ unitLabel(g.key) }}目</button>
-        <button @click="addUnit(g.key)">＋{{ unitLabel(g.key) }}追加</button>
+        <template v-for="g in tabGroups" :key="g.key">
+          <button
+            v-for="n in groupCount(g.key)"
+            :key="n"
+            :class="{active: isUnitActive(g.key, n)}"
+            @click="selectUnit(g.key, n)"
+          >{{ n }}{{ unitLabel(g.key) }}目</button>
+          <button @click="addUnit(g.key)">＋{{ unitLabel(g.key) }}追加</button>
+        </template>
       </nav>
 
       <template v-if="isAllActive()">
