@@ -4,11 +4,13 @@ import { buildConsById, topLevelCons, resolveTopCons } from "../lib/consTree.js"
 const GENERAL_TAB = "consTotal";
 const SEASON_TAB = "consSeason";
 const SEASON_LABELS = ["冬の", "春秋の", "夏の"];
+// グループ単位の呼び方。ここに無いグループは「部屋」を使う。
+const UNIT_LABELS = { RF: "台", TV: "台", CR: "台", TR: "箇所" };
 
 export default {
   props: ["data", "master"],
   data() {
-    return { search: "", currentConsTab: GENERAL_TAB, seasonLabels: SEASON_LABELS };
+    return { search: "", currentConsTab: GENERAL_TAB, seasonLabels: SEASON_LABELS, activeUnit: null };
   },
   computed: {
     consById() {
@@ -27,8 +29,8 @@ export default {
     },
     filteredItems() {
       const q = this.search.trim();
-      if (!q) return this.tabItems;
-      return this.tabItems.filter((item) => item.title.includes(q) || item.text.includes(q));
+      if (!q) return this.baseItems;
+      return this.baseItems.filter((item) => item.title.includes(q) || item.text.includes(q));
     },
     // 現在タブ内にある配列項目(isArrayCons)のグループを、cons.jsonのtitleを代表名として重複なく列挙する。
     tabGroups() {
@@ -44,6 +46,10 @@ export default {
       }
       return groups;
     },
+    // 「全体」タブで表示する、現在タブ内の非配列項目(季節項目は除く)。
+    baseItems() {
+      return this.tabItems.filter((item) => !this.isArray(item) && !this.isSeason(item));
+    },
   },
   methods: {
     // 項目が属するタブのcodeを返す。consが"consSeason"の項目は季節光熱費タブへ、
@@ -56,6 +62,7 @@ export default {
     },
     setConsTab(code) {
       this.currentConsTab = code;
+      this.activeUnit = null;
     },
     isArray(item) {
       return isArrayCons(item.cons);
@@ -120,6 +127,40 @@ export default {
     decGroup(groupKey) {
       this.setGroupCount(groupKey, this.groupCount(groupKey) - 1);
     },
+    // グループの単位の呼び方(台/箇所/部屋)。
+    unitLabel(groupKey) {
+      return UNIT_LABELS[groupKey] || "部屋";
+    },
+    isAllActive() {
+      return this.activeUnit === null;
+    },
+    isUnitActive(groupKey, index) {
+      return !!this.activeUnit && this.activeUnit.groupKey === groupKey && this.activeUnit.index === index;
+    },
+    showAll() {
+      this.activeUnit = null;
+    },
+    selectUnit(groupKey, index) {
+      this.activeUnit = { groupKey, index };
+    },
+    addUnit(groupKey) {
+      const index = this.groupCount(groupKey) + 1;
+      this.incGroup(groupKey);
+      this.selectUnit(groupKey, index);
+    },
+    // 表示中のユニットが末尾(=削除可能)かどうか。
+    isLastUnit(groupKey, index) {
+      return index === this.groupCount(groupKey);
+    },
+    removeUnit(groupKey, index) {
+      this.decGroup(groupKey);
+      const remaining = this.groupCount(groupKey);
+      this.activeUnit = remaining > 0 ? { groupKey, index: remaining } : null;
+    },
+    // 現在タブ内で、指定グループに属する配列項目一覧。
+    groupItemsFor(groupKey) {
+      return this.tabItems.filter((item) => this.isArray(item) && this.groupKeyFor(item.cons) === groupKey);
+    },
     openDiagnosis() {
       location.href = "./d6/";
     },
@@ -137,60 +178,83 @@ export default {
           @click="setConsTab(t.code)"
         >{{ t.title }}</button>
       </nav>
-      <div class="input-group-controls" v-if="tabGroups.length">
-        <span v-for="g in tabGroups" :key="g.key" class="input-group-control">
-          {{ g.title }}: {{ groupCount(g.key) }}件
-          <button @click="decGroup(g.key)">－</button>
-          <button @click="incGroup(g.key)">＋</button>
-        </span>
-      </div>
-      <template v-for="item in filteredItems" :key="item.id" style="margin-bottom:14px;">
-        <div class="rowtitle">
-          <strong>{{ item.title }}</strong> <span style="color:var(--muted)">{{ item.text }}</span>
-        </div>
+      <nav class="unit-tabs">
+        <button :class="{active: isAllActive()}" @click="showAll">全体</button>
+      </nav>
+      <nav v-for="g in tabGroups" :key="g.key" class="unit-tabs">
+        <span class="unit-tabs-label">{{ g.title }}</span>
+        <button
+          v-for="n in groupCount(g.key)"
+          :key="n"
+          :class="{active: isUnitActive(g.key, n)}"
+          @click="selectUnit(g.key, n)"
+        >{{ n }}{{ unitLabel(g.key) }}目</button>
+        <button @click="addUnit(g.key)">＋{{ unitLabel(g.key) }}追加</button>
+      </nav>
 
-        <div class="rowvalue">
-          <template v-if="isSeason(item)">
-            <div style="display:flex; gap:16px; flex-wrap:wrap;">
-              <div v-for="(label, idx) in seasonLabels" :key="idx" style="display:flex; flex-direction:column; gap:2px;">
-                <span style="color:var(--muted); font-size:0.9em;">{{ label }}{{ item.title }}</span>
-                <template v-if="item.options && item.options.length">
-                  <select v-model.number="ensureSeasonArray(item)[idx]">
-                    <option v-for="opt in item.options" :key="opt.val" :value="opt.val">{{ opt.disp }}</option>
-                  </select>
-                </template>
-                <template v-else>
-                  <input :type="item.inputType === 'text' ? 'text' : 'number'" v-model.number="ensureSeasonArray(item)[idx]">
-                </template>
+      <template v-if="isAllActive()">
+        <template v-if="currentConsTab === 'consSeason'">
+          <template v-for="item in tabItems" :key="item.id" style="margin-bottom:14px;">
+            <div class="rowtitle">
+              <strong>{{ item.title }}</strong> <span style="color:var(--muted)">{{ item.text }}</span>
+            </div>
+            <div class="rowvalue">
+              <div style="display:flex; gap:16px; flex-wrap:wrap;">
+                <div v-for="(label, idx) in seasonLabels" :key="idx" style="display:flex; flex-direction:column; gap:2px;">
+                  <span style="color:var(--muted); font-size:0.9em;">{{ label }}{{ item.title }}</span>
+                  <template v-if="item.options && item.options.length">
+                    <select v-model.number="ensureSeasonArray(item)[idx]">
+                      <option v-for="opt in item.options" :key="opt.val" :value="opt.val">{{ opt.disp }}</option>
+                    </select>
+                  </template>
+                  <template v-else>
+                    <input :type="item.inputType === 'text' ? 'text' : 'number'" v-model.number="ensureSeasonArray(item)[idx]">
+                  </template>
+                </div>
               </div>
             </div>
           </template>
+        </template>
 
-          <template v-else-if="isArray(item)">
-            <p v-if="groupCount(groupKeyFor(item.cons)) === 0" style="color:var(--muted);">(0件)</p>
-            <div v-for="n in groupCount(groupKeyFor(item.cons))" :key="n" style="display:flex; gap:8px; margin-bottom:4px; align-items:center;">
-              <span>{{ n }}</span>
-              <select v-if="item.options && item.options.length" v-model.number="ensureItemArray(item)[n - 1]">
-                <option v-for="opt in item.options" :key="opt.val" :value="opt.val">{{ opt.disp }}</option>
-              </select>
-              <input v-else :type="item.inputType === 'text' ? 'text' : 'number'" v-model.number="ensureItemArray(item)[n - 1]">
-              {{ item.unit ? item.unit : "" }}
+        <template v-else>
+          <template v-for="item in filteredItems" :key="item.id" style="margin-bottom:14px;">
+            <div class="rowtitle">
+              <strong>{{ item.title }}</strong> <span style="color:var(--muted)">{{ item.text }}</span>
+            </div>
+            <div class="rowvalue">
+              <template v-if="item.options && item.options.length">
+                <select v-model.number="data.input[item.id]">
+                  <option v-for="opt in item.options" :key="opt.val" :value="opt.val">{{ opt.disp }}</option>
+                </select>
+                {{ item.unit ? item.unit : "" }}
+              </template>
+              <template v-else>
+                <input :type="item.inputType === 'text' ? 'text' : 'number'" v-model.number="data.input[item.id]">
+                {{ item.unit ? item.unit : "" }}
+              </template>
             </div>
           </template>
+        </template>
+      </template>
 
-          <template v-else-if="item.options && item.options.length">
-            <select v-model.number="data.input[item.id]">
+      <template v-else>
+        <template v-for="item in groupItemsFor(activeUnit.groupKey)" :key="item.id" style="margin-bottom:14px;">
+          <div class="rowtitle">
+            <strong>{{ item.title }}</strong> <span style="color:var(--muted)">{{ item.text }}</span>
+          </div>
+          <div class="rowvalue">
+            <select v-if="item.options && item.options.length" v-model.number="ensureItemArray(item)[activeUnit.index - 1]">
               <option v-for="opt in item.options" :key="opt.val" :value="opt.val">{{ opt.disp }}</option>
             </select>
+            <input v-else :type="item.inputType === 'text' ? 'text' : 'number'" v-model.number="ensureItemArray(item)[activeUnit.index - 1]">
             {{ item.unit ? item.unit : "" }}
-          </template>
-
-          <template v-else>
-            <input :type="item.inputType === 'text' ? 'text' : 'number'" v-model.number="data.input[item.id]">
-            {{ item.unit ? item.unit : "" }}
-          </template>
-        </div>
+          </div>
+        </template>
+        <p v-if="isLastUnit(activeUnit.groupKey, activeUnit.index)">
+          <button @click="removeUnit(activeUnit.groupKey, activeUnit.index)">この{{ unitLabel(activeUnit.groupKey) }}を削除</button>
+        </p>
       </template>
+
       <section class="outershare">
         <p>※入力済みのデータを使って、別ページで家庭の省エネ診断ができます。</p>
         <button type="button" class="anotherpage" @click="openDiagnosis">表示する >></button>

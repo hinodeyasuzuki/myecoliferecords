@@ -240,15 +240,30 @@
     display: inline-block;
     vertical-align: top;
   }
-  #input-tab .input-group-controls {
+  #input-tab .unit-tabs {
     display: flex;
     flex-wrap: wrap;
-    gap: 16px;
-    margin-bottom: 16px;
-    padding: 8px 12px;
-    background: var(--card);
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  #input-tab .unit-tabs-label {
+    color: var(--muted);
+    margin-right: 4px;
+  }
+  #input-tab .unit-tabs button {
+    padding: 6px 12px;
     border: 1px solid var(--border);
     border-radius: 6px;
+    background: var(--card);
+    color: var(--fg);
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  #input-tab .unit-tabs button.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
   }
   .equip-table input[type="button"] {
     display: inline-block;
