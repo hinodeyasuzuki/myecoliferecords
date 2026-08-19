@@ -321,14 +321,15 @@ export default {
 
       <template v-else-if="addLogStep">
         <equip-category-picker :equips="master.equips" :products="data.products" v-model="selectId" @select="editingId = null" />
+
         <div style="border:1px solid var(--border); padding:12px; margin-bottom:12px; border-radius:6px;">
           <p><button @click="cancelAddLog">← 一覧に戻る</button></p>
 
           <template v-if="addLogStep === 'choose'">
             <p>修理する機器は、新規の機器ですか？登録済みの機器ですか？</p>
             <p>
-              <button @click="chooseNewEquip">新規の機器</button>
-              <button @click="chooseExistingEquip">登録済みの機器</button>
+              <button @click="chooseNewEquip" class="highlighted btnlarge">新規の機器</button>
+              <button @click="chooseExistingEquip" class="highlighted btnlarge">登録済みの機器</button>
             </p>
           </template>
 

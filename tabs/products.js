@@ -342,11 +342,6 @@ export default {
 
       <equip-category-picker :equips="master.equips" :products="data.products" v-model="selectId" @select="editingId = null" />
 
-      <p v-if="selectId && ( selectId % 10) !=0 " class="selected-category">
-        選択中の分類:  <img :src="'./icons/' + selectId + '.svg'" alt="" class="ms-1" style="width: 3em; height: 3em;position:relative;top:1em;">
-        {{ getEquipTitle(selectId) }} 
-      </p>
-
       <template v-if="editingId === null">
         <p>中古数：{{ sortedProductEntries.filter(([, item]) => item.method === 3 || item.method === 4 || item.method === 5).length }}件
         　／　愛用数：{{ sortedProductEntries.filter(([, item]) => item.favorite).length }}件

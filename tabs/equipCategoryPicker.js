@@ -51,6 +51,9 @@ export default {
     getEquipIcon(id) {
       return getEquipIcon(id);
     },
+    getEquipTitle(id) {
+      return this.equipsById[id]?.title || "";
+    },
     existEquipInProducts(equipId) {
       return Object.values(this.products).some((item) => {
         const itemSelection = resolveEquipSelection(this.equipsById, item.equip_id);
@@ -109,5 +112,11 @@ export default {
         </table>
       </div>
     </transition>
+
+    <p v-if="modelValue && ( modelValue % 10) !=0 " class="selected-category">
+      選択中の分類:  <img :src="'./icons/' + modelValue + '.svg'" alt="" class="ms-1" style="width: 3em; height: 3em;position:relative;top:1em;">
+      {{ getEquipTitle(modelValue) }}
+    </p>
+
   `,
 };
