@@ -147,6 +147,10 @@ export default {
       if (!this.newLogProductId) return;
       this.createLogForProduct(this.newLogProductId);
     },
+    getEquipTitle(equipId) {
+      const equip = this.equipsById[equipId];
+      return equip ? equip.title : "";
+    },
     createLogForProduct(productId) {
       const id = nextId(Object.keys(this.data.repairlog), "l");
       this.data.repairlog[id] = {
@@ -307,6 +311,10 @@ export default {
         alert("コピーに失敗しました");
       }
     },
+    linkToRepair() {
+      const url = `https://s8.hinodeya-ecolife.com/repairinfo/equipment.php?equipcode=${this.selectId}`;
+      window.open(url);
+    }
   },
   template: `
     <section id="repairlog-tab">
@@ -336,6 +344,11 @@ export default {
           </tbody>
         </table>
         <button @click="startAddLog">＋修理履歴を追加</button>
+
+        <section class="outershare" v-if="selectId && ( selectId % 10) !=0 ">
+          <p>家庭の機器修理方法サイトから、{{ getEquipTitle(selectId) }} の修理の概要を表示することができます。</p>
+          <button type="button" @click="linkToRepair">修理方法を表示する</button>
+        </section>
       </template>
 
       <template v-else-if="addLogStep">
@@ -383,6 +396,7 @@ export default {
           </template>
         </div>
       </template>
+
       <template v-else>
         <div v-if="data.repairlog[editingId]" style="border:1px solid var(--border); padding:12px; margin-bottom:12px; border-radius:6px;">
           <p>
