@@ -216,6 +216,9 @@ export default {
       return dateLabel(log);
     },
     addPictureFor(logId) {
+      // 写真タブへ遷移すると本コンポーネントはアンマウントされるため、
+      // 編集中の内容が破棄されないよう先に確定しておく。
+      this.registered = true;
       const id = nextId(Object.keys(this.data.picture), "p");
       this.data.picture[id] = { memo: "", created_at: new Date().toISOString(), sourceUrl: "" };
       this.data.repairlog[logId].picture_ids.push(id);

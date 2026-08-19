@@ -211,6 +211,9 @@ export default {
       this.backToList();
     },
     addRepairlogFor(productId) {
+      // 修理履歴タブへ遷移すると本コンポーネントはアンマウントされるため、
+      // 編集中の内容が破棄されないよう先に確定しておく。
+      this.registered = true;
       const id = nextId(Object.keys(this.data.repairlog), "l");
       this.data.repairlog[id] = {
         year: null,
@@ -228,6 +231,9 @@ export default {
       removeRepairlog(this.data, id);
     },
     addPictureFor(productId) {
+      // 写真タブへ遷移すると本コンポーネントはアンマウントされるため、
+      // 編集中の内容が破棄されないよう先に確定しておく。
+      this.registered = true;
       const id = nextId(Object.keys(this.data.picture), "p");
       this.data.picture[id] = { memo: "", created_at: new Date().toISOString(), sourceUrl: "" };
       this.data.products[productId].picture_ids.push(id);
