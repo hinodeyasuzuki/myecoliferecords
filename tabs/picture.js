@@ -12,7 +12,6 @@ export default {
   data() {
     return {
       editingId: null,
-      linkTab: "products",
       pendingSnapshot: null,
       registered: false,
     };
@@ -56,7 +55,7 @@ export default {
       return ids;
     },
     filteredPictureEntries() {
-      const ids = this.linkTab === "repairlog" ? this.repairlogPictureIds : this.productPictureIds;
+      const ids = new Set([...this.productPictureIds, ...this.repairlogPictureIds]);
       return Object.entries(this.data.picture).filter(([pid]) => ids.has(pid));
     },
   },
@@ -125,6 +124,22 @@ export default {
       const memo = pic.memo || "";
       return memo.length > 14 ? memo.slice(0, 14) + "…" : memo;
     },
+    // 写真が紐づく機器(製品分類の入手方法を見るため)。修理写真には該当なし。
+    productForPicture(pid) {
+      return Object.values(this.data.products).find((p) => p.picture_ids.includes(pid)) || null;
+    },
+    // 中古・手作り・修理のバッジ。それ以外(新品購入など)はバッジなし。
+    pictureBadge(pid) {
+      if (this.repairlogPictureIds.has(pid)) return { label: "修理", cls: "badge-repair" };
+      const product = this.productForPicture(pid);
+      if (product && (product.method === 3 || product.method === 4)) {
+        return { label: "中古", cls: "badge-used" };
+      }
+      if (product && product.method === 6) {
+        return { label: "手作り", cls: "badge-handmade" };
+      }
+      return null;
+    },
     dateLabel(pic) {
       return (pic.created_at || "").slice(0, 10);
     },
@@ -154,10 +169,6 @@ export default {
       <h2>写真</h2>
       <p>※機器や修理の写真を記録できます。写真を追加する場合は、機器や修理履歴から登録してください。</p>
       <template v-if="editingId === null">
-        <nav class="tabs">
-          <button :class="{active: linkTab === 'products'}" @click="linkTab = 'products'">機器写真</button>
-          <button :class="{active: linkTab === 'repairlog'}" @click="linkTab = 'repairlog'">修理写真</button>
-        </nav>
         <div class="picture-grid">
           <div
             v-for="[id, pic] in filteredPictureEntries"
@@ -165,6 +176,7 @@ export default {
             class="picture-tile"
             @click="startEdit(id)"
           >
+            <span v-if="pictureBadge(id)" :class="['picture-badge', pictureBadge(id).cls]">{{ pictureBadge(id).label }}</span>
             <img v-if="pictureSrc(id)" :src="pictureSrc(id)" class="picture-thumb-sm">
             <div v-else class="picture-thumb-placeholder">(未撮影)</div>
             <p class="picture-tile-memo">{{ memoPreview(pic) || "(メモ未入力)" }}</p>

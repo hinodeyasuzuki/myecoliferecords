@@ -321,6 +321,7 @@
     margin-bottom: 16px;
   }
   #picture-tab .picture-tile {
+    position: relative;
     width: 200px;
     border: 1px solid var(--border);
     border-radius: 6px;
@@ -328,6 +329,20 @@
     cursor: pointer;
     text-align: center;
   }
+  #picture-tab .picture-badge {
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-size: 0.75em;
+    font-weight: bold;
+    color: #fff;
+    z-index: 1;
+  }
+  #picture-tab .picture-badge.badge-used { background: #2e7d32; }
+  #picture-tab .picture-badge.badge-handmade { background: #e07b17; }
+  #picture-tab .picture-badge.badge-repair { background: #1565c0; }
   #picture-tab .picture-tile img.picture-thumb-sm {
     display: block;
     margin: 0 auto 6px;
