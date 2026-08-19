@@ -1,5 +1,6 @@
 import { isArrayCons, inputCountGroup } from "../lib/consArray.js";
 import { buildConsById, topLevelCons, resolveTopCons } from "../lib/consTree.js";
+import { computeEnergyCostDefaults, last12Ym } from "../lib/energyCostDefaults.js";
 
 const GENERAL_TAB = "consTotal";
 const SEASON_TAB = "consSeason";
@@ -11,6 +12,9 @@ export default {
   props: ["data", "master"],
   data() {
     return { search: "", currentConsTab: GENERAL_TAB, seasonLabels: SEASON_LABELS, activeUnit: null };
+  },
+  created() {
+    this.applyEnergyCostDefaults();
   },
   computed: {
     consById() {
@@ -163,6 +167,29 @@ export default {
     },
     openDiagnosis() {
       location.href = "./d6/";
+    },
+    // i-codeの選択肢(options)の中から、計算値に最も近い値へスナップする。
+    // 選択肢が無い項目や負の値(「選んでください」用のプレースホルダー)は除く。
+    nearestOptionValue(id, value) {
+      const item = this.master.input.find((i) => i.id === id);
+      const candidates = item && item.options ? item.options.map((o) => o.val).filter((v) => v >= 0) : [];
+      if (!candidates.length) return value;
+      return candidates.reduce((best, v) => (Math.abs(v - value) < Math.abs(best - value) ? v : best));
+    },
+    // 直近1年間のenergycostから、電気代・ガス代・灯油代・売電金額・ガソリン代の
+    // 年平均/季節平均を計算し、対応するi-codeへ常に上書きする(選択肢の値に丸める)。
+    applyEnergyCostDefaults() {
+      const defaults = computeEnergyCostDefaults(this.data.energycost, last12Ym());
+      for (const { annualId, seasonId, annual, season } of defaults) {
+        if (annual !== undefined) this.data.input[annualId] = this.nearestOptionValue(annualId, annual);
+        if (season) {
+          if (!Array.isArray(this.data.input[seasonId])) this.data.input[seasonId] = [];
+          const arr = this.data.input[seasonId];
+          season.forEach((v, idx) => {
+            if (v !== undefined) arr[idx] = this.nearestOptionValue(seasonId, v);
+          });
+        }
+      }
     },
   },
   template: `
