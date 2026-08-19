@@ -209,6 +209,14 @@ export default {
         this.backToList();
       }
     },
+    viewProduct(id) {
+      const log = this.data.repairlog[id];
+      if (!log || !log.product_id || !this.data.products[log.product_id]) return;
+      // 機器タブへ遷移すると本コンポーネントはアンマウントされるため、
+      // 編集中の内容が破棄されないよう先に確定しておく。
+      this.registered = true;
+      this.$emit("jump-product", log.product_id);
+    },
     productNameForLog(log) {
       return productNameFor(this.data.products, log.product_id);
     },
@@ -402,6 +410,7 @@ export default {
               <option value="">選択してください</option>
               <option v-for="(product, pid) in data.products" :key="pid" :value="pid">{{ pid }} ({{ product.name }})</option>
             </select>
+            <button v-if="data.repairlog[editingId].product_id" @click="viewProduct(editingId)">機器を表示</button>
           </p>
           <p><span class="rowtitle">修理者<span class="open">*</span></span>
             <select v-model.number="data.repairlog[editingId].repairer">
