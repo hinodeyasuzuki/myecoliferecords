@@ -8,7 +8,7 @@ import { pictureBlobs, ensurePictureBlobLoaded, setPictureBlobCache, clearPictur
 
 export default {
   props: ["data", "highlightId"],
-  emits: ["consumed-highlight"],
+  emits: ["consumed-highlight", "jump-product", "jump-repairlog"],
   data() {
     return {
       editingId: null,
@@ -128,6 +128,33 @@ export default {
     productForPicture(pid) {
       return Object.values(this.data.products).find((p) => p.picture_ids.includes(pid)) || null;
     },
+    // 写真が紐づく修理履歴(修理写真の場合のみ)。
+    repairlogEntryForPicture(pid) {
+      const entry = Object.entries(this.data.repairlog).find(([, log]) => log.picture_ids.includes(pid));
+      return entry ? { id: entry[0], log: entry[1] } : null;
+    },
+    // 「機器の表示」用のproduct_id。修理写真なら修理履歴が紐づく機器を、
+    // 機器写真ならその機器自身を返す。
+    productIdForPicture(pid) {
+      const repairEntry = this.repairlogEntryForPicture(pid);
+      if (repairEntry) return repairEntry.log.product_id;
+      const product = Object.entries(this.data.products).find(([, p]) => p.picture_ids.includes(pid));
+      return product ? product[0] : null;
+    },
+    jumpToProductFor(pid) {
+      const productId = this.productIdForPicture(pid);
+      if (!productId) return;
+      // 機器タブへ遷移すると本コンポーネントはアンマウントされるため、
+      // 編集中の内容が破棄されないよう先に確定しておく。
+      this.registered = true;
+      this.$emit("jump-product", productId);
+    },
+    jumpToRepairlogFor(pid) {
+      const repairEntry = this.repairlogEntryForPicture(pid);
+      if (!repairEntry) return;
+      this.registered = true;
+      this.$emit("jump-repairlog", repairEntry.id);
+    },
     // 中古・手作り・修理のバッジ。それ以外(新品購入など)はバッジなし。
     pictureBadge(pid) {
       if (this.repairlogPictureIds.has(pid)) return { label: "修理", cls: "badge-repair" };
@@ -189,6 +216,10 @@ export default {
         <div v-if="data.picture[editingId]" class="picture-card">
           <p><button @click="backToList">← 一覧に戻る</button></p>
           <p><strong>{{ editingId }}</strong></p>
+          <p v-if="productIdForPicture(editingId)">
+            <button @click="jumpToProductFor(editingId)">機器の表示</button>
+            <button v-if="repairlogEntryForPicture(editingId)" @click="jumpToRepairlogFor(editingId)">修理の表示</button>
+          </p>
           <p>
             <img v-if="pictureSrc(editingId)" :src="pictureSrc(editingId)" class="picture-thumb">
           </p>

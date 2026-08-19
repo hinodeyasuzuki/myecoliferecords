@@ -50,6 +50,8 @@
       :data="data"
       :highlight-id="highlight.picture"
       @consumed-highlight="clearPictureHighlight"
+      @jump-product="jumpToProduct"
+      @jump-repairlog="jumpToRepairlog"
     ></tab-picture>
     <tab-setting
       v-if="currentTab === 'setting'"
