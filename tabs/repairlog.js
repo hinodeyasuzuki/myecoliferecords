@@ -10,7 +10,6 @@ import {
   level2Options as equipLevel2Options,
   level3Options as equipLevel3Options,
   resolveEquipSelection,
-  getEquipIcon,
 } from "../lib/equipTree.js";
 
 const REPAIRER_OPTIONS = [
@@ -31,7 +30,6 @@ export default {
       sortDir: "desc",
       cameFromProduct: false,
       selectId: "",
-      smLevel1Id: "",
       addLogStep: null,
       newEquipForm: { name: "", equip_id: "", purchaseyear: null },
       newLogProductId: "",
@@ -84,6 +82,17 @@ export default {
       const years = [];
       for (let y = current; y >= current - 20; y--) years.push(y);
       return years;
+    },
+    productList(){
+      //現在のカテゴリーの選択状態に応じて、表示する機器productのリストを返す
+      if (this.selectId) {
+        return Object.fromEntries(
+          Object.entries(this.data.products).filter(([pid, product]) =>
+            product.equip_id === this.selectId
+          )
+        );
+      }
+      return this.data.products;
     },
   },
   methods: {
@@ -226,19 +235,11 @@ export default {
         selection.level2Id === categoryId
       );
     },
-    smSelectLevel1(id) {
-      this.smLevel1Id = id;
-      this.selectId = id;
-      this.editingId = null;
-    },
     level2Options(level1Id) {
       return equipLevel2Options(this.master.equips, level1Id);
     },
     level3Options(level2Id) {
       return equipLevel3Options(this.master.equips, level2Id);
-    },
-    getEquipIcon(id) {
-      return getEquipIcon(id);
     },
     async copyToThirdHanders() {
       const log = this.data.repairlog[this.editingId];
@@ -292,15 +293,10 @@ export default {
     <section id="repairlog-tab">
       <h2>修理履歴</h2>
 
-      <p>※修理の履歴を記録できます。機器を登録した上で、修理を記録してください。</p>
+      <p>※修理の履歴を記録できます。</p>
 
       <template v-if="editingId === null && !addLogStep">
-        <div class="category">
-          <button @click="selectId = '';smLevel1Id='';" :class="{highlighted: !smLevel1Id}">📋 すべて</button>
-          <button v-for="eq1 in level1Options" :key="eq1.id" @click="smSelectLevel1(eq1.id)" :class="{highlighted: smLevel1Id == eq1.id}">
-            {{ getEquipIcon(eq1.id) }} {{ eq1.title }}
-          </button>
-        </div>
+        <equip-category-picker :equips="master.equips" :products="data.products" v-model="selectId" @select="editingId = null" />
 
         <table>
           <thead>
@@ -322,7 +318,9 @@ export default {
         </table>
         <button @click="startAddLog">＋修理履歴を追加</button>
       </template>
+
       <template v-else-if="addLogStep">
+        <equip-category-picker :equips="master.equips" :products="data.products" v-model="selectId" @select="editingId = null" />
         <div style="border:1px solid var(--border); padding:12px; margin-bottom:12px; border-radius:6px;">
           <p><button @click="cancelAddLog">← 一覧に戻る</button></p>
 
@@ -358,7 +356,7 @@ export default {
             <p><span class="rowtitle">機器<span class="open">*</span></span>
               <select v-model="newLogProductId">
                 <option value="">選択してください</option>
-                <option v-for="(product, pid) in data.products" :key="pid" :value="pid">{{ pid }} ({{ product.name }})</option>
+                <option v-for="(product, pid) in productList" :key="pid" :value="pid">{{ pid }} ({{ product.name }})</option>
               </select>
             </p>
             <p><button @click="confirmExistingEquip" :disabled="!newLogProductId">この機器で修理履歴を追加</button></p>

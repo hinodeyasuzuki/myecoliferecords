@@ -6,7 +6,6 @@ import {
   level2Options as equipLevel2Options,
   level3Options as equipLevel3Options,
   resolveEquipSelection,
-  getEquipIcon,
 } from "../lib/equipTree.js";
 import { modelName, methodLabel, sortProductEntries } from "../lib/productSort.js";
 import { dateSortValue } from "../lib/repairlogSort.js";
@@ -40,9 +39,6 @@ export default {
       sortKey: "purchaseyear",
       sortDir: "desc",
       selectId: "",
-      equipShow: false,
-      smLevel1Id: "",
-      smLevel2Id: "",
       isNarrow: window.innerWidth <= 600,
       pendingIsNew: false,
       pendingSnapshot: null,
@@ -278,27 +274,6 @@ export default {
       this.pendingIsNew = true;
       this.pendingSnapshot = null;
       this.editingId = id;
-      this.equipShow = false;
-      this.smLevel1Id = "";
-      this.smLevel2Id = "";
-    },
-    smSelectLevel1(id) {
-      this.smLevel1Id = id;
-      this.smLevel2Id = "";
-      this.selectId = id;
-      this.editingId = null;
-    },
-    smSelectLevel2(id) {
-      this.smLevel2Id = id;
-      this.selectId = id;
-      this.editingId = null;
-    },
-    smBackToLevel1() {
-      this.smLevel1Id = "";
-      this.smLevel2Id = "";
-    },
-    smBackToLevel2() {
-      this.smLevel2Id = "";
     },
     modelNameFor(item) {
       return modelName(this.equipsById, item.equip_id);
@@ -320,19 +295,6 @@ export default {
     getEquipTitle(equipId) {
       const equip = this.equipsById[equipId];
       return equip ? equip.title : "";
-    },
-    existEquipInProducts(equipId) {
-      return Object.values(this.data.products).some((item) => {
-        const selection = resolveEquipSelection(this.equipsById, item.equip_id);
-        return (
-          item.equip_id === equipId ||
-          selection.level1Id === equipId ||
-          selection.level2Id === equipId
-        );
-      });
-    },
-    getEquipIcon(id) {
-      return getEquipIcon(id);
     },
     async copyToThirdHanders() {
       const item = this.data.products[this.editingId];
@@ -378,30 +340,7 @@ export default {
 
       <p>※分類を選び、中古で買った機器などを記録できます。</p>
 
-      <div class="category">
-        <button @click="selectId = null;smLevel1Id='';smLevel2Id='';equipShow=true;">📋 すべて</button>
-        <button v-for="eq1 in level1Options" :key="eq1.id" @click="smSelectLevel1(eq1.id);equipShow=true;" :class="{highlighted: smLevel1Id == eq1.id}">
-          {{ getEquipIcon(eq1.id) }} {{ eq1.title }}
-        </button>
-      </div>
-      
-      <div v-if="smLevel1Id && equipShow">
-        <table class="equip-table">
-          <thead>
-            <tr><th>中分類</th><th>小分類</th></tr>
-          </thead>
-          <tbody>
-            <tr v-for="eq2 in level2Options(smLevel1Id)" :key="eq2.id">
-              <td><input type="button" :value="eq2.title" @click="selectId = eq2.id;equipShow = false;editingId = null"></td>
-              <td>
-                <template v-for="eq3 in level3Options(eq2.id)" :key="eq3.id">
-                  <input type="button" :value="eq3.title" :class="{highlighted: existEquipInProducts(eq3.id)}" @click="selectId = eq3.id;equipShow = false;editingId = null">
-                </template>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      <equip-category-picker :equips="master.equips" :products="data.products" v-model="selectId" @select="editingId = null" />
 
       <p v-if="selectId && ( selectId % 10) !=0 " class="selected-category">
         選択中の分類:  <img :src="'./icons/' + selectId + '.svg'" alt="" class="ms-1" style="width: 3em; height: 3em;position:relative;top:1em;">
@@ -485,11 +424,13 @@ export default {
               <option v-for="m in methodOptions" :key="m.val" :value="m.val">{{ m.label }}</option>
             </select>
           </p>
+          <p><span class="rowtitle">概要<span class="open">*</span></span> <textarea class="memory" v-model="data.products[editingId].memory"></textarea></p>
+
           <p><span class="rowtitle">メーカー</span> <input type="text" class="w100" v-model="data.products[editingId].maker"></p>
           <p><span class="rowtitle">型番</span> <input type="text" class="w100" v-model="data.products[editingId].modelnumber"></p>
           <p><span class="rowtitle">販売者</span> <input type="text" class="w100" v-model="data.products[editingId].seller"></p>
 
-          <p><span class="rowtitle">愛用品</span> <input type="checkbox" v-model="data.products[editingId].favorite"></p>
+          <p><span class="rowtitle">愛用品</span> <input type="checkbox" v-model="data.products[editingId].favorite"> <span>※お気に入りの製品の場合、マークします</span></p>
           <p v-if="data.products[editingId].method == 3 || data.products[editingId].method == 4"><span class="rowtitle">製造年</span>
             <select v-model.number="data.products[editingId].manufactureyear">
               <option value="">　</option>
@@ -526,7 +467,6 @@ export default {
               <button @click.stop="removePictureEntry(pid)">削除</button>
             </li>
           </ul>
-          <p><span class="rowtitle">思い出<span class="open">*</span></span> <textarea class="memory" v-model="data.products[editingId].memory"></textarea></p>
           <p><span class="rowtitle">使用終了年</span> <input type="number" v-model.number="data.products[editingId].enduseyear">年</p>
           <p class="center">
             <button class="highlighted btnlarge" @click="registerProduct">登録する</button>

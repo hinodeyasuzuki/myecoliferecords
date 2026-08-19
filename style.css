@@ -107,6 +107,7 @@
     font-weight: bold;
     vertical-align: top;
   }
+  input[type="button"]{cursor: pointer;}
   input[type="button"].highlighted, button.highlighted { background: var(--accent) !important; color: #fff; border-color: var(--accent); }
   button:disabled, input[type="button"]:disabled {
     opacity: 0.4;
@@ -115,6 +116,18 @@
   input[type="button"].highlighted:disabled, button.highlighted:disabled {
     background: var(--muted) !important;
     border-color: var(--muted);
+  }
+  .equip-expand-enter-active, .equip-expand-leave-active {
+    transition: max-height 0.5s ease, opacity 0.5s ease;
+    overflow: hidden;
+  }
+  .equip-expand-enter-from, .equip-expand-leave-to {
+    max-height: 0;
+    opacity: 0;
+  }
+  .equip-expand-enter-to, .equip-expand-leave-from {
+    max-height: 1000px;
+    opacity: 1;
   }
   input[type="number"] { text-align: right;width:6em; }
   input[type="number"].no-spin::-webkit-outer-spin-button,
@@ -237,7 +250,7 @@
     border: 1px solid var(--border);
     border-radius: 6px;
   }
-  #products-tab .equip-table input[type="button"] {
+  .equip-table input[type="button"] {
     display: inline-block;
     border-radius: 6px;
     padding: 3px;
@@ -255,11 +268,11 @@
     margin-bottom: 3px; 
   }
 
-   #products-tab .up{
+  #products-tab .up{
     text-decoration: underline;
     cursor: pointer;
     color:blue;
-   }
+  }
 
   #picture-tab .picture-card {
     border: 1px solid var(--border);

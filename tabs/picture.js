@@ -128,6 +128,22 @@ export default {
     dateLabel(pic) {
       return (pic.created_at || "").slice(0, 10);
     },
+    createdAtDisplay(pic) {
+      const raw = (pic && pic.created_at) || "";
+      const date = new Date(raw);
+      if (isNaN(date.getTime())) return raw || "(未設定)";
+      const parts = new Intl.DateTimeFormat("ja-JP", {
+        timeZone: "Asia/Tokyo",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false,
+      }).formatToParts(date);
+      const get = (type) => parts.find((p) => p.type === type).value;
+      return `${get("year")}-${get("month")}-${get("day")} ${get("hour")}:${get("minute")}`;
+    },
     pictureSrc(id) {
       ensurePictureBlobLoaded(id);
       return pictureBlobs[id] || "";
@@ -175,7 +191,7 @@ export default {
             取込元: <a :href="data.picture[editingId].sourceUrl" target="_blank" rel="noopener">Google Photos</a>（リンクは時間が経つと無効になる場合があります）
           </p>
           <p><span class="rowtitle">メモ</span> <textarea class="memory" v-model="data.picture[editingId].memo"></textarea></p>
-          <p><span class="rowtitle">作成日時</span> <input type="text" v-model="data.picture[editingId].created_at"></p>
+          <p><span class="rowtitle">作成日時</span> {{ createdAtDisplay(data.picture[editingId]) }}</p>
           <p class="center">
             <button class="highlighted btnlarge" :disabled="!pictureSrc(editingId)" @click="registerPicture">登録する</button>
             <button @click="removePicture(editingId)">削除</button>

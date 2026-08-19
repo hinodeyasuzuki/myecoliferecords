@@ -209,5 +209,7 @@ import PictureTab from "./tabs/picture.js";
 app.component("tab-picture", PictureTab);
 import SettingTab from "./tabs/setting.js";
 app.component("tab-setting", SettingTab);
+import EquipCategoryPicker from "./tabs/equipCategoryPicker.js";
+app.component("equip-category-picker", EquipCategoryPicker);
 
 app.mount("#app");
