@@ -1,7 +1,96 @@
+import { parseYm } from "../lib/yearMonth.js";
+import { lastPeriods, buildDashboardSeries, energyCompletionStatuses } from "../lib/dashboardStats.js";
+import { buildLineChartSvg } from "../lib/svgLineChart.js";
+
+const SERIES_COLORS = { used: "#2e7d32", handmade: "#e07b17", repaired: "#1565c0" };
+
 export default {
+  props: ["data", "master"],
+  data() {
+    return { dashboardMode: "month" };
+  },
+  computed: {
+    periods() {
+      return lastPeriods(this.dashboardMode, 20);
+    },
+    dashboardSeries() {
+      return buildDashboardSeries(this.data.products, this.data.repairlog, this.dashboardMode, this.periods);
+    },
+    dashboardLabels() {
+      if (this.dashboardMode === "year") return this.periods.map(String);
+      return this.periods.map((ym) => {
+        const { year, month } = parseYm(ym);
+        return `${String(year).slice(2)}/${month}`;
+      });
+    },
+    dashboardChartSvg() {
+      const series = ["used", "handmade", "repaired"].map((key) => ({
+        values: this.dashboardSeries[key],
+        color: SERIES_COLORS[key],
+      }));
+      return buildLineChartSvg({ labels: this.dashboardLabels, series, labelEvery: 2 });
+    },
+    last12Months() {
+      return lastPeriods("month", 12);
+    },
+    energyCompletion() {
+      return energyCompletionStatuses(
+        this.last12Months,
+        this.master.energy,
+        this.master.energycost,
+        this.data.energy,
+        this.data.energycost
+      );
+    },
+  },
+  methods: {
+    monthLabel(ym) {
+      const { year, month } = parseYm(ym);
+      return `${year}/${month}`;
+    },
+    statusMark(status) {
+      if (status === "full") return "●";
+      if (status === "partial") return "▲";
+      return "";
+    },
+  },
   template: `
     <section id="top-tab">
       <h2>トップ</h2>
+
+      <section class="outershare">
+        <h3>取り組み状況</h3>
+        <div class="graph-controls">
+          <span>
+            <button :class="{highlighted: dashboardMode === 'month'}" @click="dashboardMode = 'month'">月別</button>
+            <button :class="{highlighted: dashboardMode === 'year'}" @click="dashboardMode = 'year'">年別</button>
+          </span>
+        </div>
+        <div class="graph-card">
+          <div class="energy-chart" v-html="dashboardChartSvg"></div>
+          <ul class="chart-legend">
+            <li><span class="legend-color" style="background:#2e7d32;"></span>中古数</li>
+            <li><span class="legend-color" style="background:#e07b17;"></span>手作り数</li>
+            <li><span class="legend-color" style="background:#1565c0;"></span>修理数</li>
+          </ul>
+          <p class="chart-caption">直近20{{ dashboardMode === 'year' ? '年' : 'ヶ月' }}分。{{ dashboardMode === 'year' ? '' : '購入・修理月が不明な場合は、その年の12ヶ月に均等按分しています。' }}</p>
+        </div>
+
+        <template v-if="dashboardMode === 'month'">
+          <h3>光熱記入状況(直近1年)</h3>
+          <table class="energy-completion-table">
+            <tbody>
+              <tr>
+                <th v-for="e in energyCompletion" :key="e.ym">{{ monthLabel(e.ym) }}</th>
+              </tr>
+              <tr>
+                <td v-for="e in energyCompletion" :key="e.ym">{{ statusMark(e.status) }}</td>
+              </tr>
+            </tbody>
+          </table>
+          <p class="chart-caption">●＝消費量・金額すべて入力済み　▲＝一部のみ入力済み　空欄＝未入力</p>
+        </template>
+      </section>
 
       <p>　エコライフを記録し、活用していきましょう。中古・修理の記録、エネルギー利用の記録を残せます。</p>
 

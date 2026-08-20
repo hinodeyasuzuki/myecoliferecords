@@ -22,7 +22,7 @@
     </nav>
 
     <tab-input v-if="currentTab === 'input'" :data="data" :master="master"></tab-input>
-    <tab-top v-if="currentTab === 'top'" :data="data"></tab-top>
+    <tab-top v-if="currentTab === 'top'" :data="data" :master="master"></tab-top>
     <tab-room v-if="currentTab === 'room'" :data="data"></tab-room>
     <tab-products
       v-if="currentTab === 'products'"
