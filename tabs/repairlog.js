@@ -294,7 +294,7 @@ export default {
         },
         repairlog: {
           [this.editingId]: {
-            about: log.about,
+            public_info: log.about,
             year: log.year,
             repairer: repairerOption ? repairerOption.label : "",
             cost: log.cost,
@@ -346,7 +346,7 @@ export default {
         <button @click="startAddLog">＋修理履歴を追加</button>
 
         <section class="outershare" v-if="selectId && ( selectId % 10) !=0 ">
-          <p>家庭の機器修理方法サイトから、{{ getEquipTitle(selectId) }} の修理の概要を表示することができます。</p>
+          <p>※家庭の機器修理方法サイトから、{{ getEquipTitle(selectId) }} の修理の概要を表示することができます。</p>
           <button type="button" @click="linkToRepair">修理方法を表示する</button>
         </section>
       </template>
@@ -455,8 +455,12 @@ export default {
         </div>
 
         <section class="outershare">
-          <p>修理ありがとうございます。<span class="open">*</span> がついた入力済みのデータを、<a href="https://thirdhanders.hinodeya-ecolife.com/">Third Handersサイト</a>から公開することができます。
-          「公開用にコピーする」ボタンを押し、Third Handersサイトにログインして、貼り付けてください。</p>
+          <p>修理ありがとうございます。<br/>
+          <span class="open">*</span> がついた入力済みのデータを、<a href="https://thirdhanders.hinodeya-ecolife.com/">Third Handersサイト</a>から公開することができます。<br />
+          1.「公開用にコピーする」ボタンを押す。<br />
+          2.<a href="https://thirdhanders.hinodeya-ecolife.com/">Third Handersサイト</a>にログインする。<br />
+          3.「記事貼り付け」ボタンを押して貼り付ける。<br />
+          4.適宜編集をして公開する。</p>
           <button type="button" @click="copyToThirdHanders">公開用にコピーする</button>
         </section>
       </template>

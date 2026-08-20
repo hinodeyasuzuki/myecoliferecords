@@ -45,6 +45,15 @@ export default {
         this.data.energycost
       );
     },
+    countOfRepairlog() {
+      return Object.values(this.data.repairlog).length;
+    },
+    countOfUsedProducts() {
+      return this.productEntries.filter(([, item]) => item.method === 3 || item.method === 4 || item.method === 5).length;
+    },
+    countOfHandmadeProducts() {
+      return this.productEntries.filter(([, item]) => item.method === 6).length;
+    },
   },
   methods: {
     hasRepairlogFor(productId) {
@@ -64,12 +73,26 @@ export default {
     <section id="top-tab">
       <h2>トップ</h2>
 
-      <section class="outershare">
+      <section class="outershare" v-if="countOfUsedProducts || countOfHandmadeProducts || countOfRepairlog">
         <h3>成果</h3>
-        <p>中古数：{{ productEntries.filter(([, item]) => item.method === 3 || item.method === 4 || item.method === 5).length }}件
-         ／ 手作り数：{{ productEntries.filter(([, item]) =>  item.method === 6).length }}件
-         ／ 修理数：{{ productEntries.filter(([id]) => hasRepairlogFor(id)).length }}件
-         </p>
+        <table class="top-summary-table">
+          <thead>
+            <tr>
+              <th>中古数</th>
+              <th>手作り数</th>
+              <th>修理数</th>
+              <th>光熱月数</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>{{ countOfUsedProducts }}件</td>
+              <td>{{ countOfHandmadeProducts }}件</td>
+              <td>{{ countOfRepairlog }}件</td>
+              <td>{{ energyCompletion.filter((e) => e.status === "full" || e.status === "partial").length }}ヶ月</td>
+            </tr>
+          </tbody>
+        </table>
 
         <h3>取り組み状況</h3>
         <div class="graph-controls">

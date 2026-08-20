@@ -329,7 +329,7 @@ export default {
             name: item.name,
             method: item.method,
             purchaseyear: item.purchaseyear,
-            memory: item.memory,
+            public_info: item.memory,
             picture_ids: pictureIds,
           },
         },
@@ -395,7 +395,7 @@ export default {
         <button v-else @click="addProductAndEdit">＋分類を指定せず機器を追加</button>
         
         <section class="outershare" v-if="selectId && ( selectId % 10) !=0 ">
-          <p>家庭の機器修理方法サイトから、{{ getEquipTitle(selectId) }} の修理の概要を表示することができます。</p>
+          <p>※家庭の機器修理方法サイトから、{{ getEquipTitle(selectId) }} の修理の概要を表示することができます。</p>
           <button type="button" @click="linkToRepair">修理方法を表示する</button>
         </section>
 
@@ -488,8 +488,12 @@ export default {
       </template>
 
       <section class="outershare" v-if="ecouseFlag">
-        <p>{{methodOptions[data.products[editingId].method-1].label}} ありがとうございます。<span class="open">*</span> がついた入力済みのデータを、<a href="https://thirdhanders.hinodeya-ecolife.com/">Third Handersサイト</a>から公開することができます。
-        「公開用にコピーする」ボタンを押し、Third Handersサイトにログインして、貼り付けてください。</p>
+        <p>{{methodOptions[data.products[editingId].method-1].label}} ありがとうございます。<br />
+        <span class="open">*</span> がついた入力済みのデータを、<a href="https://thirdhanders.hinodeya-ecolife.com/">Third Handersサイト</a>から公開することができます。<br />
+        1.「公開用にコピーする」ボタンを押す。<br />
+        2.<a href="https://thirdhanders.hinodeya-ecolife.com/">Third Handersサイト</a>にログインする。<br />
+        3.「記事貼り付け」ボタンを押して貼り付ける。<br />
+        4.適宜編集をして公開する。</p>
         <button type="button" @click="copyToThirdHanders">公開用にコピーする</button>
       </section>
     </section>
