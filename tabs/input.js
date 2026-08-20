@@ -260,6 +260,7 @@ export default {
                 {{ item.unit ? item.unit : "" }}
               </template>
             </div>
+            <p v-if="item.title" style="color:var(--muted); font-size:0.9em;">{{ item.title }}</p>
           </template>
         </template>
       </template>

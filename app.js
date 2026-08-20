@@ -161,7 +161,7 @@ const app = createApp({
       const a = document.createElement("a");
       const today = new Date().toISOString().slice(0, 10).replace(/-/g, "");
       a.href = url;
-      a.download = `saved-input-${today}.json`;
+      a.download = `myecoliferecords-${today}.json`;
       a.click();
       URL.revokeObjectURL(url);
     },

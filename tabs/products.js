@@ -358,8 +358,10 @@ export default {
 
       <template v-if="editingId === null">
         <p>中古数：{{ sortedProductEntries.filter(([, item]) => item.method === 3 || item.method === 4 || item.method === 5).length }}件
-        　／　愛用数：{{ sortedProductEntries.filter(([, item]) => item.favorite).length }}件
-        　／　修理数：{{ sortedProductEntries.filter(([id]) => hasRepairlogFor(id)).length }}件</p>
+         ／ 手作り数：{{ sortedProductEntries.filter(([, item]) =>  item.method === 6).length }}件
+         ／ 修理数：{{ sortedProductEntries.filter(([id]) => hasRepairlogFor(id)).length }}件
+         ／ 愛用数：{{ sortedProductEntries.filter(([, item]) => item.favorite).length }}件
+         </p>
         <table>
           <thead>
             <tr class="table-sortable">

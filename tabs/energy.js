@@ -94,6 +94,7 @@ export default {
             </td>
           </tr>
         </tbody>
+        <p>※消費がない場合は、0を入力してください。</p>
       </table>
 
       <section class="outershare">
