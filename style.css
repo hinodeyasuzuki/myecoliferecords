@@ -205,14 +205,13 @@
   }
   .outershare .energy-chart {
     width: 100%;
-    max-width: 520px;
     height: auto;
     display: block;
   }
   .outershare .chart-caption {
     margin: 8px 0 0;
     color: var(--muted);
-    font-size: 0.9em;
+    font-size: 1.1em;
   }
   .outershare .chart-legend {
     display: grid;
