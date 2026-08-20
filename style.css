@@ -129,6 +129,17 @@
     max-height: 1000px;
     opacity: 1;
   }
+  .month-swap-enter-active, .month-swap-leave-active {
+    transition: opacity 0.15s ease, transform 0.15s ease;
+  }
+  .month-swap-enter-from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  .month-swap-leave-to {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
   input[type="number"] { text-align: right;width:6em; }
   input[type="number"].no-spin::-webkit-outer-spin-button,
   input[type="number"].no-spin::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
@@ -233,11 +244,25 @@
     overflow-x: auto;
     white-space: nowrap;
   }
+  #top-tab .chart-legend {
+    display: inline-block !important;
+  }
+  #top-tab .chart-legend>span {
+    margin-right: 12px;
+  }
   #top-tab .energy-completion-table th,
   #top-tab .energy-completion-table td {
     text-align: center;
     padding: 4px 8px;
     font-size: 0.85em;
+    width:8%;
+    background: white;
+  }
+  #top-tab .top-summary-table th,
+  #top-tab .top-summary-table td {
+    background: white;    
+    text-align: center;
+    padding: 4px 8px;
   }
   #input-tab .rowtitle {
     width: 60%;
