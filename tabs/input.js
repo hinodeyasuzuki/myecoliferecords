@@ -221,6 +221,7 @@ export default {
 
       <template v-if="isAllActive()">
         <template v-if="currentConsTab === 'consSeason'">
+          <p style="color:var(--muted);">※「光熱」タブの記入内容から、直近1年間の実績にもとづいて自動的に反映されています。</p>
           <template v-for="item in tabItems" :key="item.id" style="margin-bottom:14px;">
             <div class="rowtitle">
               <strong>{{ item.title }}</strong> <span style="color:var(--muted)">{{ item.text }}</span>
@@ -260,7 +261,6 @@ export default {
                 {{ item.unit ? item.unit : "" }}
               </template>
             </div>
-            <p v-if="item.title" style="color:var(--muted); font-size:0.9em;">{{ item.title }}</p>
           </template>
         </template>
       </template>
