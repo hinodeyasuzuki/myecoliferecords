@@ -10,6 +10,9 @@ export default {
     return { dashboardMode: "month" };
   },
   computed: {
+    productEntries() {
+      return Object.entries(this.data.products);
+    },
     periods() {
       return lastPeriods(this.dashboardMode, 20);
     },
@@ -44,9 +47,12 @@ export default {
     },
   },
   methods: {
+    hasRepairlogFor(productId) {
+      return Object.values(this.data.repairlog).some((log) => log.product_id === productId);
+    },
     monthLabel(ym) {
       const { year, month } = parseYm(ym);
-      return `${year}/${month}`;
+      return month === 1 ? `${year}/${month}` : `${month}`;
     },
     statusMark(status) {
       if (status === "full") return "●";
@@ -59,6 +65,12 @@ export default {
       <h2>トップ</h2>
 
       <section class="outershare">
+        <h3>成果</h3>
+        <p>中古数：{{ productEntries.filter(([, item]) => item.method === 3 || item.method === 4 || item.method === 5).length }}件
+         ／ 手作り数：{{ productEntries.filter(([, item]) =>  item.method === 6).length }}件
+         ／ 修理数：{{ productEntries.filter(([id]) => hasRepairlogFor(id)).length }}件
+         </p>
+
         <h3>取り組み状況</h3>
         <div class="graph-controls">
           <span>
@@ -68,17 +80,17 @@ export default {
         </div>
         <div class="graph-card">
           <div class="energy-chart" v-html="dashboardChartSvg"></div>
-          <ul class="chart-legend">
-            <li><span class="legend-color" style="background:#2e7d32;"></span>中古数</li>
-            <li><span class="legend-color" style="background:#e07b17;"></span>手作り数</li>
-            <li><span class="legend-color" style="background:#1565c0;"></span>修理数</li>
-          </ul>
-          <p class="chart-caption">直近20{{ dashboardMode === 'year' ? '年' : 'ヶ月' }}分。{{ dashboardMode === 'year' ? '' : '購入・修理月が不明な場合は、その年の12ヶ月に均等按分しています。' }}</p>
+          <p class="chart-legend">
+            <span><span class="legend-color" style="background:#2e7d32;"></span>中古数</span>
+            <span><span class="legend-color" style="background:#e07b17;"></span>手作り数</span>
+            <span><span class="legend-color" style="background:#1565c0;"></span>修理数</span>
+          </p>
+          <p class="chart-caption">直近20{{ dashboardMode === 'year' ? '年' : 'ヶ月' }}分。{{ dashboardMode === 'year' ? '' : '月が不明な場合は、その年の12ヶ月に均等按分しています。' }}</p>
         </div>
 
         <template v-if="dashboardMode === 'month'">
           <h3>光熱記入状況(直近1年)</h3>
-          <table class="energy-completion-table">
+          <table class="energy-completion-table" style="text-align:center;">
             <tbody>
               <tr>
                 <th v-for="e in energyCompletion" :key="e.ym">{{ monthLabel(e.ym) }}</th>
